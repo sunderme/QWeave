@@ -20,8 +20,12 @@
 
 #include <QSettings>
 #include <QFileDialog>
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
+#include <QPainter>
 
 #include <QScrollArea>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -45,6 +49,7 @@ void MainWindow::setupMenu()
     menu->addAction(tr("&Open"),this,SLOT(open()));
     menu->addAction(tr("&Save"),this,SLOT(save()));
     menu->addAction(tr("Save &as"),this,SLOT(saveas()));
+    menu->addAction(tr("&Print"),this,SLOT(print()));
     menu->addAction(tr("&Quit"),this,SLOT(close()));
     menu=menuBar()->addMenu("&Options");
     menu->addAction("&Config",this,SLOT(config()));
@@ -106,5 +111,18 @@ void MainWindow::open()
           tr("Open Weave"), "", tr("QWeave Files (*.weave)"));
     if(!fileName.isEmpty()){
         wv->open(fileName);
+    }
+}
+
+void MainWindow::print()
+{
+    QPrinter *printer=new QPrinter(QPrinter::HighResolution);
+    QPrintDialog printDialog(printer, this);
+    if (printDialog.exec() == QDialog::Accepted) {
+        // print ...
+        QPainter painter;
+        painter.begin(printer);
+        wv->paint(painter,60);
+        painter.end();
     }
 }

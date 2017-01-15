@@ -39,6 +39,7 @@ private slots:
     void save();
     void saveas();
     void open();
+    void print();
 private:
     QString fileName;
 };

@@ -44,14 +44,14 @@ public:
 
     QSize sizeHint() const;
 
+    void paint(QPainter &paint, int useScale=-1);
+
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
 
     QString bitToString(QBitArray bits);
     QBitArray stringToBit(QString txt);
-
-    void paint(QPainter &paint);
 };
 
 #endif // WEAVE_H

@@ -296,8 +296,10 @@ QBitArray Weave::stringToBit(QString txt)
     return bit;
 }
 
-void Weave::paint(QPainter &paint)
+void Weave::paint(QPainter &paint,int useScale)
 {
+    if(useScale<1)
+        useScale=scale;
     QBrush up(Qt::blue);
     QBrush down(Qt::green);
     for(int y=0;y<nrLines;y++){
@@ -308,17 +310,17 @@ void Weave::paint(QPainter &paint)
             if(line.at(x)){
                 paint.setBrush(up);
                 paint.setPen(Qt::NoPen);
-                paint.drawRect(x*scale,(nrShafts+yDist+y)*scale,scale,scale);
+                paint.drawRect(x*useScale,(nrShafts+yDist+y)*useScale,useScale,useScale);
                 paint.setPen(Qt::SolidLine);
-                paint.drawLine(x*scale,(nrShafts+yDist+y)*scale,x*scale,(nrShafts+yDist+y+1)*scale);
-                paint.drawLine(x*scale+scale,(nrShafts+yDist+y)*scale,x*scale+scale,(nrShafts+yDist+y+1)*scale);
+                paint.drawLine(x*useScale,(nrShafts+yDist+y)*useScale,x*useScale,(nrShafts+yDist+y+1)*useScale);
+                paint.drawLine(x*useScale+useScale,(nrShafts+yDist+y)*useScale,x*useScale+useScale,(nrShafts+yDist+y+1)*useScale);
             }else{
                 paint.setBrush(down);
                 paint.setPen(Qt::NoPen);
-                paint.drawRect(x*scale,(nrShafts+yDist+y)*scale,scale,scale);
+                paint.drawRect(x*useScale,(nrShafts+yDist+y)*useScale,useScale,useScale);
                 paint.setPen(Qt::SolidLine);
-                paint.drawLine(x*scale,(nrShafts+yDist+y)*scale,x*scale+scale,(nrShafts+yDist+y)*scale);
-                paint.drawLine(x*scale,(nrShafts+yDist+y+1)*scale,x*scale+scale,(nrShafts+yDist+y+1)*scale);
+                paint.drawLine(x*useScale,(nrShafts+yDist+y)*useScale,x*useScale+useScale,(nrShafts+yDist+y)*useScale);
+                paint.drawLine(x*useScale,(nrShafts+yDist+y+1)*useScale,x*useScale+useScale,(nrShafts+yDist+y+1)*useScale);
             }
         }
         paint.restore();
@@ -329,7 +331,7 @@ void Weave::paint(QPainter &paint)
             }else{
                 paint.setBrush(down);
             }
-            paint.drawRect((x+nrCols+xDist)*scale,(nrShafts+yDist+y)*scale,scale,scale);
+            paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts+yDist+y)*useScale,useScale,useScale);
         }
     }
     for(int y=0;y<nrShafts;y++){
@@ -341,7 +343,7 @@ void Weave::paint(QPainter &paint)
             }else{
                 paint.setBrush(down);
             }
-            paint.drawRect(x*scale,(nrShafts-y-1)*scale,scale,scale);
+            paint.drawRect(x*useScale,(nrShafts-y-1)*useScale,useScale,useScale);
         }
         line=translation.at(y);
         for (int x = 0; x < nrPositions; ++x) {
@@ -350,7 +352,7 @@ void Weave::paint(QPainter &paint)
             }else{
                 paint.setBrush(down);
             }
-            paint.drawRect((x+nrCols+xDist)*scale,(nrShafts-y-1)*scale,scale,scale);
+            paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts-y-1)*useScale,useScale,useScale);
         }
     }
 
