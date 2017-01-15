@@ -303,14 +303,25 @@ void Weave::paint(QPainter &paint)
     for(int y=0;y<nrLines;y++){
         QBitArray line;
         line=lines.at(y);
+        paint.save();
         for (int x = 0; x < nrCols; ++x) {
             if(line.at(x)){
                 paint.setBrush(up);
+                paint.setPen(Qt::NoPen);
+                paint.drawRect(x*scale,(nrShafts+yDist+y)*scale,scale,scale);
+                paint.setPen(Qt::SolidLine);
+                paint.drawLine(x*scale,(nrShafts+yDist+y)*scale,x*scale,(nrShafts+yDist+y+1)*scale);
+                paint.drawLine(x*scale+scale,(nrShafts+yDist+y)*scale,x*scale+scale,(nrShafts+yDist+y+1)*scale);
             }else{
                 paint.setBrush(down);
+                paint.setPen(Qt::NoPen);
+                paint.drawRect(x*scale,(nrShafts+yDist+y)*scale,scale,scale);
+                paint.setPen(Qt::SolidLine);
+                paint.drawLine(x*scale,(nrShafts+yDist+y)*scale,x*scale+scale,(nrShafts+yDist+y)*scale);
+                paint.drawLine(x*scale,(nrShafts+yDist+y+1)*scale,x*scale+scale,(nrShafts+yDist+y+1)*scale);
             }
-            paint.drawRect(x*scale,(nrShafts+yDist+y)*scale,scale,scale);
         }
+        paint.restore();
         line=positions.at(y);
         for (int x = 0; x < nrPositions; ++x) {
             if(line.at(x)){
