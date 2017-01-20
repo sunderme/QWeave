@@ -328,6 +328,8 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
 
 
 void Weave::mousePressEvent(QMouseEvent *event){
+    mouseMovePoint.setX(-1);
+    mouseMovePoint.setY(-1);
     if (event->button() == Qt::LeftButton) {
         if(mode==op_copy || mode==op_move){
             panePos pos0;
@@ -474,10 +476,6 @@ void Weave::mouseReleaseEvent(QMouseEvent *event)
     QPoint delta=event->pos()-mousePressPoint;
     if(delta.manhattanLength()<=1)
         clicked();
-    mousePressPoint.setX(-1);
-    mousePressPoint.setY(-1);
-    mouseMovePoint.setX(-1);
-    mouseMovePoint.setY(-1);
 }
 
 void Weave::mouseMoveEvent(QMouseEvent *event)
