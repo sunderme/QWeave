@@ -61,6 +61,8 @@ void Weave::init()
     mousePressPoint.setY(-1);
     mouseMovePoint.setX(-1);
     mouseMovePoint.setY(-1);
+
+    mode=op_none;
 }
 
 void Weave::generateWeave()
@@ -168,6 +170,97 @@ void Weave::open(QString fileName)
     generateWeave();
 }
 
+void Weave::copy()
+{
+    mode=op_copy;
+}
+
+void Weave::move()
+{
+    mode=op_move;
+}
+
+void Weave::clear()
+{
+    if(pos==pos_position){
+        for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
+            positions[i].fill(false);
+        }
+    }
+    if(pos==pos_shaft){
+        for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
+            for(int k=0;k<nrShafts;k++){
+                shafts[k].setBit(i,false);
+            }
+        }
+    }
+    generateWeave();
+    update();
+}
+
+void Weave::mirror_x()
+{
+    if(pos==pos_position){
+        for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
+            QBitArray line=positions.at(i);
+            QBitArray line2(line.size());
+            line=positions[i];
+            for(int k=0;k<nrPositions;k++){
+                line2.setBit(k,line.at(nrPositions-k-1));
+            }
+            positions[i]=line2;
+        }
+    }
+    if(pos==pos_shaft){
+        int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
+        int start=qMin(origin_x0,origin_x1);
+        bitField field;
+        QBitArray line(l);
+        for(int i=0;i<nrShafts;i++){
+            for(int j=0;j<l;j++){
+                line.setBit(l-j-1,shafts[i].at(start+j));
+            }
+            field<<line;
+        }
+        for(int i=0;i<field.size();i++){
+            for(int j=0;j<l;j++){
+                shafts[i].setBit(j+start,field[i].at(j));
+            }
+        }
+    }
+    generateWeave();
+    update();
+}
+
+void Weave::mirror_y()
+{
+    if(pos==pos_position){
+        bitField field=positions.mid(qMin(origin_x0,origin_x1),qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1);
+        for(int i=0;i<field.size();i++){
+            positions[qMin(origin_x0,origin_x1)+i]=field.at(field.size()-i-1);
+        }
+    }
+    if(pos==pos_shaft){
+        int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
+        int start=qMin(origin_x0,origin_x1);
+        bitField field;
+        QBitArray line(l);
+        for(int i=0;i<nrShafts;i++){
+            for(int j=0;j<l;j++){
+                line.setBit(j,shafts[i].at(start+j));
+            }
+            field<<line;
+        }
+        for(int i=0;i<field.size();i++){
+            for(int j=0;j<l;j++){
+                shafts[i].setBit(j+start,field[nrShafts-i-1].at(j));
+            }
+        }
+    }
+    generateWeave();
+    update();
+}
+
 QSize Weave::sizeHint() const
 {
     int extension=2;
@@ -236,6 +329,16 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
 
 void Weave::mousePressEvent(QMouseEvent *event){
     if (event->button() == Qt::LeftButton) {
+        if(mode==op_copy || mode==op_move){
+            panePos pos0;
+            int x,y;
+            determinePos(event->pos(),pos0,x,y);
+            if(pos==pos0){
+                performCopy(x,y,mode==op_move);
+            }
+            mode=op_none;
+            return;
+        }
         mousePressPoint=event->pos();
     }
 }
@@ -323,6 +426,49 @@ void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
     }
 }
 
+void Weave::performCopy(int x, int y,bool clearSel)
+{
+    if(pos==pos_position){
+        int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
+        int start=qMin(origin_x0,origin_x1);
+        bitField field=positions.mid(start,l);
+        if(clearSel)
+            clear();
+        if(y<start)
+            y=y-l+1;
+        for(int i=0;i<field.size();i++){
+            if(y+i<0)
+                continue;
+            positions[y+i]=field.at(i);
+        }
+    }
+    if(pos==pos_shaft){
+        int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
+        int start=qMin(origin_x0,origin_x1);
+        bitField field;
+        QBitArray line(l);
+        for(int i=0;i<nrShafts;i++){
+            for(int j=0;j<l;j++){
+                line.setBit(j,shafts[i].at(start+j));
+            }
+            field<<line;
+        }
+        if(clearSel)
+            clear();
+        if(x<start)
+            x=x-l+1;
+        for(int i=0;i<field.size();i++){
+            for(int j=0;j<l;j++){
+                if(j+x<0)
+                    continue;
+                shafts[i].setBit(j+x,field[i].at(j));
+            }
+        }
+    }
+    generateWeave();
+    update();
+}
+
 void Weave::mouseReleaseEvent(QMouseEvent *event)
 {
     QPoint delta=event->pos()-mousePressPoint;
@@ -374,15 +520,18 @@ void Weave::paint(QPainter &paint,int useScale)
     QBrush down(Qt::green);
     // check if mouseDrag
     bool inSelectMode=false;
-    int y0,y1,x0,x1;
-    panePos pos=pos_none;
+    pos=pos_none;
     if(mouseMovePoint.x()>=0){
-        int x;
         panePos pos1;
-        determinePos(mousePressPoint,pos,x0,y0);
-        determinePos(mouseMovePoint,pos1,x1,y1);
-        if(pos!=pos_none && pos==pos1 && y0>=0 && y1>=0){
+        int x0,x1;
+        determinePos(mousePressPoint,pos,x0,origin_x0);
+        determinePos(mouseMovePoint,pos1,x1,origin_x1);
+        if(pos!=pos_none && pos==pos1 && origin_x0>=0 && origin_x1>=0){
             inSelectMode=true;
+            if(pos==pos_shaft){
+                origin_x0=x0;
+                origin_x1=x1;
+            }
         }else{
             pos=pos_none;
         }
@@ -413,7 +562,7 @@ void Weave::paint(QPainter &paint,int useScale)
         line=positions.at(y);
         for (int x = 0; x < nrPositions; ++x) {
             if(inSelectMode && pos==pos_position){
-                if(y>=qMin(y0,y1) && y<=qMax(y0,y1)){
+                if(y>=qMin(origin_x0,origin_x1) && y<=qMax(origin_x0,origin_x1)){
                     paint.setPen(Qt::yellow);
                 }else{
                     paint.setPen(Qt::black);
@@ -435,7 +584,7 @@ void Weave::paint(QPainter &paint,int useScale)
         line=shafts.at(y);
         for (int x = 0; x < nrCols; ++x) {
             if(inSelectMode && pos==pos_shaft){
-                if(x>=qMin(x0,x1) && x<=qMax(x0,x1)){
+                if(x>=qMin(origin_x0,origin_x1) && x<=qMax(origin_x0,origin_x1)){
                     paint.setPen(Qt::yellow);
                 }else{
                     paint.setPen(Qt::black);

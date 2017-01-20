@@ -46,6 +46,14 @@ public:
 
     void paint(QPainter &paint, int useScale=-1);
 
+public slots:
+
+    void copy();
+    void move();
+    void clear();
+    void mirror_x();
+    void mirror_y();
+
 protected:
     enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines};
     void paintEvent(QPaintEvent *event);
@@ -56,10 +64,18 @@ protected:
     void clicked();
     void determinePos(QPoint p,panePos &pos,int &x,int &y);
 
+    void performCopy(int x, int y, bool clearSel=false);
+
     QString bitToString(QBitArray bits);
     QBitArray stringToBit(QString txt);
 
     QPoint mousePressPoint,mouseMovePoint;
+
+    enum operationMode {op_none,op_copy,op_move};
+    operationMode mode;
+
+    panePos pos;
+    int origin_x0,origin_x1;
 };
 
 #endif // WEAVE_H

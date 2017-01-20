@@ -26,6 +26,8 @@
 
 #include <QScrollArea>
 
+#include <QShortcut>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -51,6 +53,12 @@ void MainWindow::setupMenu()
     menu->addAction(tr("Save &as"),this,SLOT(saveas()));
     menu->addAction(tr("&Print"),this,SLOT(print()));
     menu->addAction(tr("&Quit"),this,SLOT(close()));
+    menu=menuBar()->addMenu("&Edit");
+    menu->addAction("&Move",wv,SLOT(move()),QKeySequence(Qt::Key_M));
+    menu->addAction("&Copy",wv,SLOT(copy()),QKeySequence(Qt::Key_C));
+    menu->addAction("C&lear",wv,SLOT(clear()),QKeySequence(Qt::Key_Delete));
+    menu->addAction("Mirror &X",wv,SLOT(mirror_x()),QKeySequence(Qt::Key_X));
+    menu->addAction("Mirror &Y",wv,SLOT(mirror_y()),QKeySequence(Qt::Key_Y));
     menu=menuBar()->addMenu("&Options");
     menu->addAction("&Config",this,SLOT(config()));
 
