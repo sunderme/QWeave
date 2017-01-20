@@ -56,6 +56,11 @@ void Weave::init()
     offset=(nrLines+yDist+nrShafts)*scale;
 
     exclusiveShaft=true;
+
+    mousePressPoint.setX(-1);
+    mousePressPoint.setY(-1);
+    mouseMovePoint.setX(-1);
+    mouseMovePoint.setY(-1);
 }
 
 void Weave::generateWeave()
@@ -231,47 +236,112 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
 
 void Weave::mousePressEvent(QMouseEvent *event){
     if (event->button() == Qt::LeftButton) {
-        QPoint point = event->pos();
-        int y=point.y();
-        int x=point.x();
-        if(x>=0 && y>=0){
-            x/=scale;
-            y/=scale;
-            if( x<nrCols && y>nrShafts){
-                //lines[y].toggleBit(x);
+        mousePressPoint=event->pos();
+    }
+}
+
+void Weave::clicked(){
+    int y=mousePressPoint.y();
+    int x=mousePressPoint.x();
+    if(x>=0 && y>=0){
+        x/=scale;
+        y/=scale;
+        if( x<nrCols && y>nrShafts){
+            //lines[y].toggleBit(x);
+        }else{
+            x=x-nrCols-xDist;
+            int yn=y-nrShafts-yDist;
+            if( x>=0 && yn>=0 && x<nrPositions && yn<nrLines){
+                if(!positions[yn].at(x)){
+                    positions[yn].fill(false);
+                    positions[yn].setBit(x,true);
+                }
             }else{
-                x=x-nrCols-xDist;
-                int yn=y-nrShafts-yDist;
-                if( x>=0 && yn>=0 && x<nrPositions && yn<nrLines){
-                    if(!positions[yn].at(x)){
-                        positions[yn].fill(false);
-                        positions[yn].setBit(x,true);
+                if(x<0){
+                    x=x+nrCols+xDist;
+                    if( y>=0 && x<nrCols && y<nrShafts){
+                        if(exclusiveShaft){
+                            if(!shafts[nrShafts-y-1].at(x)){
+                                for(int k=0;k<nrShafts;k++){
+                                    shafts[k].setBit(x,false);
+                                }
+                                shafts[nrShafts-y-1].setBit(x,true);
+                            }
+                        }else{
+                            shafts[nrShafts-y-1].toggleBit(x);
+                        }
                     }
                 }else{
-                    if(x<0){
-                        x=x+nrCols+xDist;
-                        if( y>=0 && x<nrCols && y<nrShafts){
-                            if(exclusiveShaft){
-                                if(!shafts[nrShafts-y-1].at(x)){
-                                    for(int k=0;k<nrShafts;k++){
-                                        shafts[k].setBit(x,false);
-                                    }
-                                    shafts[nrShafts-y-1].setBit(x,true);
-                                }
-                            }else{
-                                shafts[nrShafts-y-1].toggleBit(x);
-                            }
-                        }
-                    }else{
-                        if( x>=0 && y>=0 && x<nrPositions && y<nrShafts){
-                            translation[nrShafts-y-1].toggleBit(x);
-                        }
+                    if( x>=0 && y>=0 && x<nrPositions && y<nrShafts){
+                        translation[nrShafts-y-1].toggleBit(x);
                     }
                 }
             }
         }
-        generateWeave();
-        update();
+    }
+    generateWeave();
+    update();
+}
+
+void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
+{
+    y=p.y();
+    x=p.x();
+    pos=pos_none;
+    if(x>=0 && y>=0){
+        x/=scale;
+        y/=scale;
+        if( x<nrCols && y>nrShafts){
+            y=y-nrShafts-yDist;
+            if(y<nrLines)
+                pos=pos_lines;
+            return;
+            //lines[y].toggleBit(x);
+        }else{
+            x=x-nrCols-xDist;
+            int yn=y-nrShafts-yDist;
+            if( x>=0 && yn>=0 && x<nrPositions && yn<nrLines){
+                y=yn;
+                pos=pos_position;
+                return;
+            }else{
+                if(x<0){
+                    x=x+nrCols+xDist;
+                    if( y>=0 && x<nrCols && y<nrShafts){
+                        pos=pos_shaft;
+                        y=nrShafts-y-1;
+                        return;
+                    }
+                }else{
+                    if( x>=0 && y>=0 && x<nrPositions && y<nrShafts){
+                        pos=pos_translate;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Weave::mouseReleaseEvent(QMouseEvent *event)
+{
+    QPoint delta=event->pos()-mousePressPoint;
+    if(delta.manhattanLength()<=1)
+        clicked();
+    mousePressPoint.setX(-1);
+    mousePressPoint.setY(-1);
+    mouseMovePoint.setX(-1);
+    mouseMovePoint.setY(-1);
+}
+
+void Weave::mouseMoveEvent(QMouseEvent *event)
+{
+    if(mousePressPoint.x()>=0){
+        mouseMovePoint=event->pos();
+        QPoint delta=mousePressPoint-mouseMovePoint;
+        if(delta.manhattanLength()>1){
+            update();
+        }
     }
 }
 
@@ -302,6 +372,22 @@ void Weave::paint(QPainter &paint,int useScale)
         useScale=scale;
     QBrush up(Qt::blue);
     QBrush down(Qt::green);
+    // check if mouseDrag
+    bool inSelectMode=false;
+    int y0,y1,x0,x1;
+    panePos pos=pos_none;
+    if(mouseMovePoint.x()>=0){
+        int x;
+        panePos pos1;
+        determinePos(mousePressPoint,pos,x0,y0);
+        determinePos(mouseMovePoint,pos1,x1,y1);
+        if(pos!=pos_none && pos==pos1 && y0>=0 && y1>=0){
+            inSelectMode=true;
+        }else{
+            pos=pos_none;
+        }
+    }
+    //
     for(int y=0;y<nrLines;y++){
         QBitArray line;
         line=lines.at(y);
@@ -326,6 +412,13 @@ void Weave::paint(QPainter &paint,int useScale)
         paint.restore();
         line=positions.at(y);
         for (int x = 0; x < nrPositions; ++x) {
+            if(inSelectMode && pos==pos_position){
+                if(y>=qMin(y0,y1) && y<=qMax(y0,y1)){
+                    paint.setPen(Qt::yellow);
+                }else{
+                    paint.setPen(Qt::black);
+                }
+            }
             if(line.at(x)){
                 paint.setBrush(up);
             }else{
@@ -333,17 +426,30 @@ void Weave::paint(QPainter &paint,int useScale)
             }
             paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts+yDist+y)*useScale,useScale,useScale);
         }
+        if(inSelectMode && pos==pos_position){
+            paint.setPen(Qt::black);
+        }
     }
     for(int y=0;y<nrShafts;y++){
         QBitArray line;
         line=shafts.at(y);
         for (int x = 0; x < nrCols; ++x) {
+            if(inSelectMode && pos==pos_shaft){
+                if(x>=qMin(x0,x1) && x<=qMax(x0,x1)){
+                    paint.setPen(Qt::yellow);
+                }else{
+                    paint.setPen(Qt::black);
+                }
+            }
             if(line.at(x)){
                 paint.setBrush(up);
             }else{
                 paint.setBrush(down);
             }
             paint.drawRect(x*useScale,(nrShafts-y-1)*useScale,useScale,useScale);
+        }
+        if(inSelectMode && pos==pos_shaft){
+            paint.setPen(Qt::black);
         }
         line=translation.at(y);
         for (int x = 0; x < nrPositions; ++x) {

@@ -47,11 +47,19 @@ public:
     void paint(QPainter &paint, int useScale=-1);
 
 protected:
+    enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines};
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+
+    void clicked();
+    void determinePos(QPoint p,panePos &pos,int &x,int &y);
 
     QString bitToString(QBitArray bits);
     QBitArray stringToBit(QString txt);
+
+    QPoint mousePressPoint,mouseMovePoint;
 };
 
 #endif // WEAVE_H
