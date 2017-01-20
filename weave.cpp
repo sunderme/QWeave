@@ -437,7 +437,7 @@ void Weave::performCopy(int x, int y,bool clearSel)
         if(y<start)
             y=y-l+1;
         for(int i=0;i<field.size();i++){
-            if(y+i<0)
+            if(y+i<0 || y+i>=nrLines)
                 continue;
             positions[y+i]=field.at(i);
         }
@@ -459,7 +459,7 @@ void Weave::performCopy(int x, int y,bool clearSel)
             x=x-l+1;
         for(int i=0;i<field.size();i++){
             for(int j=0;j<l;j++){
-                if(j+x<0)
+                if(j+x<0 || j+x>nrCols)
                     continue;
                 shafts[i].setBit(j+x,field[i].at(j));
             }
