@@ -337,7 +337,12 @@ void Weave::mousePressEvent(QMouseEvent *event){
             determinePos(event->pos(),pos0,x,y);
             if(pos==pos0){
                 performCopy(x,y,mode==op_move);
+            }else{
+                if((pos==pos_position||pos==pos_shaft)&&(pos0==pos_position||pos0==pos_shaft)&&(nrPositions==nrShafts)){
+                    performCopy(x,y,mode==op_move,true);
+                }
             }
+
             mode=op_none;
             return;
         }
@@ -428,7 +433,7 @@ void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
     }
 }
 
-void Weave::performCopy(int x, int y,bool clearSel)
+void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy)
 {
     if(pos==pos_position){
         int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
@@ -436,12 +441,22 @@ void Weave::performCopy(int x, int y,bool clearSel)
         bitField field=positions.mid(start,l);
         if(clearSel)
             clear();
-        if(y<start)
-            y=y-l+1;
-        for(int i=0;i<field.size();i++){
-            if(y+i<0 || y+i>=nrLines)
-                continue;
-            positions[y+i]=field.at(i);
+        if(crossCopy){
+            for(int i=0;i<nrShafts;i++){
+                for(int j=0;j<l;j++){
+                    if(j+x<0 || j+x>=nrCols)
+                        continue;
+                    shafts[i].setBit(j+x,field[j].at(i));
+                }
+            }
+        }else{
+            if(y<start)
+                y=y-l+1;
+            for(int i=0;i<field.size();i++){
+                if(y+i<0 || y+i>=nrLines)
+                    continue;
+                positions[y+i]=field.at(i);
+            }
         }
     }
     if(pos==pos_shaft){
@@ -457,13 +472,23 @@ void Weave::performCopy(int x, int y,bool clearSel)
         }
         if(clearSel)
             clear();
-        if(x<start)
-            x=x-l+1;
-        for(int i=0;i<field.size();i++){
-            for(int j=0;j<l;j++){
-                if(j+x<0 || j+x>nrCols)
+        if(crossCopy){
+            for(int i=0;i<l;i++){
+                if(y+i<0 || y+i>=nrLines)
                     continue;
-                shafts[i].setBit(j+x,field[i].at(j));
+                for(int k=0;k<nrPositions;k++){
+                    positions[y+i].setBit(k,field[k].at(i));
+                }
+            }
+        }else{
+            if(x<start)
+                x=x-l+1;
+            for(int i=0;i<field.size();i++){
+                for(int j=0;j<l;j++){
+                    if(j+x<0 || j+x>nrCols)
+                        continue;
+                    shafts[i].setBit(j+x,field[i].at(j));
+                }
             }
         }
     }
