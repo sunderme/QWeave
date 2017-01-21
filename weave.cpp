@@ -514,8 +514,8 @@ void Weave::paint(QPainter &paint,int useScale)
 {
     if(useScale<1)
         useScale=scale;
-    QBrush up(Qt::blue);
-    QBrush down(Qt::green);
+    QBrush up(clrUp);
+    QBrush down(clrDown);
     // check if mouseDrag
     bool inSelectMode=false;
     pos=pos_none;

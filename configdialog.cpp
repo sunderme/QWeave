@@ -23,11 +23,13 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     QLabel *lblCols=new QLabel(tr("Columns"));
     sbCols=new QSpinBox();
     sbCols->setMinimum(2);
+    sbCols->setMaximum(1000);
     lblCols->setBuddy(sbCols);
 
     QLabel *lblLines=new QLabel(("Lines"));
     sbLines=new QSpinBox();
     sbLines->setMinimum(2);
+    sbLines->setMaximum(1000);
     lblLines->setBuddy(sbLines);
 
     QLabel *lblShafts=new QLabel(("Shafts"));
@@ -39,6 +41,12 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     sbPositions=new QSpinBox();
     sbPositions->setMinimum(2);
     lblPositions->setBuddy(sbPositions);
+
+    QPushButton *btUp=new QPushButton("up");
+    QPushButton *btDown=new QPushButton("down");
+
+    connect(btUp,SIGNAL(clicked()),this,SLOT(chooseColorUp()));
+    connect(btDown,SIGNAL(clicked()),this,SLOT(chooseColorDown()));
 
     QPushButton *btOK=new QPushButton(("OK"));
     QPushButton *btCancel=new QPushButton(("Cancel"));
@@ -55,6 +63,8 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     layGrid->addWidget(sbShafts,2,1,1,1);
     layGrid->addWidget(lblPositions,3,0,1,1);
     layGrid->addWidget(sbPositions,3,1,1,1);
+    layGrid->addWidget(btUp,4,0,1,1);
+    layGrid->addWidget(btDown,4,1,1,1);
 
     QHBoxLayout *hlayout= new QHBoxLayout;
     hlayout->addStretch();
@@ -107,4 +117,34 @@ int configDialog::getPositions()
 void configDialog::setPositions(int positions)
 {
     sbPositions->setValue(positions);
+}
+
+void configDialog::setColors(QColor up, QColor down)
+{
+    m_up=up;
+    m_down=down;
+}
+
+void configDialog::getColors(QColor &up, QColor &down)
+{
+    up=m_up;
+    down=m_down;
+}
+
+void configDialog::chooseColorUp()
+{
+    QColorDialog dlg;
+    dlg.setCurrentColor(m_up);
+    if(dlg.exec()){
+        m_up=dlg.currentColor();
+    }
+}
+
+void configDialog::chooseColorDown()
+{
+    QColorDialog dlg;
+    dlg.setCurrentColor(m_down);
+    if(dlg.exec()){
+        m_down=dlg.currentColor();
+    }
 }

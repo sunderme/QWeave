@@ -72,6 +72,8 @@ void MainWindow::readSettings()
     int nrShafts=settings.value("nrShafts",4).toInt();
     int nrPositions=settings.value("nrPositions",4).toInt();
     wv->resizeWeave(nrLines,nrCols,nrShafts,nrPositions);
+    wv->clrUp=settings.value("Colour_up",QColor(Qt::blue)).value<QColor>();
+    wv->clrDown=settings.value("Colour_down",QColor(Qt::green)).value<QColor>();
 }
 
 void MainWindow::writeSettings()
@@ -81,6 +83,8 @@ void MainWindow::writeSettings()
     settings.setValue("nrCols",wv->nrCols);
     settings.setValue("nrShafts",wv->nrShafts);
     settings.setValue("nrPositions",wv->nrPositions);
+    settings.setValue("Colour_up",wv->clrUp);
+    settings.setValue("Colour_down",wv->clrDown);
 }
 
 void MainWindow::config()
@@ -90,8 +94,10 @@ void MainWindow::config()
     dlg->setCols(wv->nrCols);
     dlg->setShafts(wv->nrShafts);
     dlg->setPositions(wv->nrPositions);
+    dlg->setColors(wv->clrUp,wv->clrDown);
     if(dlg->exec()){
         wv->resizeWeave(dlg->getLines(),dlg->getCols(),dlg->getShafts(),dlg->getPositions());
+        dlg->getColors(wv->clrUp,wv->clrDown);
     }
     delete dlg;
 }

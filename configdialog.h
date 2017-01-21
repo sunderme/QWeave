@@ -23,6 +23,8 @@ class QSpinBox;
 class configDialog : public QDialog
 {
 
+Q_OBJECT
+
 public:
     configDialog(QWidget *parent=0);
     int getCols();
@@ -33,8 +35,15 @@ public:
     void setShafts(int shafts);
     int getPositions();
     void setPositions(int positions);
+    void setColors(QColor up,QColor down);
+    void getColors(QColor &up,QColor &down);
+
+public slots:
+    void chooseColorUp();
+    void chooseColorDown();
 private:
     QSpinBox *sbCols,*sbLines,*sbShafts,*sbPositions;
+    QColor m_up,m_down;
 };
 
 #endif // CONFIGDIALOG_H

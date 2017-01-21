@@ -36,6 +36,8 @@ public:
     int xDist,yDist;
     bool exclusiveShaft;
 
+    QColor clrUp,clrDown;
+
     void resizeWeave(int newLines, int newCols, int newShafts, int newPos);
     void generateWeave();
     void generatePattern();
