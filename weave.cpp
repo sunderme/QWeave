@@ -489,6 +489,19 @@ void Weave::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+void Weave::wheelEvent(QWheelEvent *event)
+{
+    //QPoint numPixels = event->pixelDelta();
+    QPoint numDegrees = event->angleDelta() / 8;
+    if(event->modifiers()==Qt::ControlModifier){
+        scale+=numDegrees.y()/15;
+        if(scale<2)
+            scale=2;
+        event->accept();
+        update();
+    }
+}
+
 QString Weave::bitToString(QBitArray bits)
 {
     // lsb left
