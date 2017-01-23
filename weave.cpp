@@ -450,7 +450,7 @@ void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy)
                 }
             }
         }else{
-            if(y<start)
+            if(y>start)
                 y=y-l+1;
             for(int i=0;i<field.size();i++){
                 if(y+i<0 || y+i>=nrLines)
@@ -481,7 +481,7 @@ void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy)
                 }
             }
         }else{
-            if(x<start)
+            if(x>start)
                 x=x-l+1;
             for(int i=0;i<field.size();i++){
                 for(int j=0;j<l;j++){
@@ -523,6 +523,7 @@ void Weave::wheelEvent(QWheelEvent *event)
         if(scale<2)
             scale=2;
         event->accept();
+        adjustSize();
         update();
     }
 }
