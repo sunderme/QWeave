@@ -18,6 +18,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QAction>
 #include "weave.h"
 #include "configdialog.h"
 
@@ -42,6 +43,8 @@ private slots:
     void print();
 private:
     QString fileName;
+
+    QAction *mUndoAction,*mRedoAction;
 };
 
 #endif // MAINWINDOW_H

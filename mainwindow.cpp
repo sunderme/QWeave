@@ -54,6 +54,8 @@ void MainWindow::setupMenu()
     menu->addAction(tr("&Print"),this,SLOT(print()));
     menu->addAction(tr("&Quit"),this,SLOT(close()));
     menu=menuBar()->addMenu("&Edit");
+    mUndoAction=menu->addAction("&Undo",wv,SLOT(undo()),QKeySequence(Qt::ControlModifier+Qt::Key_Z));
+    mRedoAction=menu->addAction("&Redo",wv,SLOT(redo()),QKeySequence(Qt::ControlModifier+Qt::ShiftModifier+Qt::Key_Z));
     menu->addAction("&Move",wv,SLOT(move()),QKeySequence(Qt::Key_M));
     menu->addAction("&Copy",wv,SLOT(copy()),QKeySequence(Qt::Key_C));
     menu->addAction("C&lear",wv,SLOT(clear()),QKeySequence(Qt::Key_Delete));

@@ -20,7 +20,23 @@
 #include <QWidget>
 #include <QPaintEvent>
 #include <QBitArray>
+#include <QUndoStack>
 typedef QList<QBitArray> bitField;
+
+class ChangeArray : public QUndoCommand
+{
+public:
+      ChangeArray(bitField *field, const int idx,const QBitArray &newArray)
+          : m_field(field), m_new(newArray), m_idx(idx) { setText("change pos"); }
+      virtual void undo()
+          { m_field->replace(m_idx,m_old); }
+      virtual void redo()
+          { m_old=m_field->at(m_idx) ; m_field->replace(m_idx,m_new); }
+  private:
+      bitField *m_field;
+      QBitArray m_new,m_old;
+      int m_idx;
+};
 
 class Weave : public QWidget
 {
@@ -56,6 +72,9 @@ public slots:
     void mirror_x();
     void mirror_y();
 
+    void undo();
+    void redo();
+
 protected:
     enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines};
     void paintEvent(QPaintEvent *event);
@@ -79,6 +98,8 @@ protected:
 
     panePos pos;
     int origin_x0,origin_x1;
+
+    QUndoStack m_undoStack;
 };
 
 #endif // WEAVE_H

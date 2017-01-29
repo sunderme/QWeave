@@ -81,9 +81,11 @@ void Weave::generateWeave()
             }
         }
         QBitArray line(nrCols);
-        for(int k=0;k<nrShafts;k++){
-            if(s.at(k)){
-                line=line|shafts[k];
+        QBitArray zw(nrShafts);
+        for(int k=0;k<nrCols;k++){
+            zw=shafts[k]&s;
+            if(zw.count(true)){
+                line.setBit(k,true);
             }
         }
         lines[y]=line;
@@ -114,7 +116,7 @@ void Weave::save(QString fileName)
     }
     jsObj["positions"]=jsPositions;
     QJsonArray jsShafts;
-    for(int k=0;k<nrShafts;k++){
+    for(int k=0;k<nrCols;k++){
         jsShafts.append(bitToString(shafts[k]));
     }
     jsObj["shafts"]=jsShafts;
@@ -129,6 +131,7 @@ void Weave::save(QString fileName)
 
 void Weave::open(QString fileName)
 {
+    m_undoStack.clear();
     QFile loadFile(fileName);
 
     if (!loadFile.open(QIODevice::ReadOnly)) {
@@ -166,6 +169,20 @@ void Weave::open(QString fileName)
     for(int k=0;k<jsShafts.size();k++){
         shafts.append(stringToBit(jsShafts.at(k).toString()));
     }
+    // correct data imported from old format
+    if(shafts.size()!=nrCols){
+        bitField zw;
+        for(int k=0;k<nrCols;k++){
+            QBitArray ba(nrShafts);
+            for(int j=0;j<nrShafts;j++){
+                if(shafts[j].at(k)){
+                    ba.setBit(j,true);
+                }
+            }
+            zw<<ba;
+        }
+        shafts=zw;
+    }
 
     generateWeave();
 }
@@ -183,16 +200,24 @@ void Weave::move()
 void Weave::clear()
 {
     if(pos==pos_position){
+        m_undoStack.beginMacro("clear");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
-            positions[i].fill(false);
+            QBitArray line(nrPositions);
+            ChangeArray *cp=new ChangeArray(&positions,i,line);
+            m_undoStack.push(cp);
+            //positions[i].fill(false);
         }
+        m_undoStack.endMacro();
     }
     if(pos==pos_shaft){
+        m_undoStack.beginMacro("clear");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
-            for(int k=0;k<nrShafts;k++){
-                shafts[k].setBit(i,false);
-            }
+            QBitArray line(nrShafts);
+            ChangeArray *cp=new ChangeArray(&shafts,i,line);
+            m_undoStack.push(cp);
+            //shafts[i].fill(false);
         }
+        m_undoStack.endMacro();
     }
     generateWeave();
     update();
@@ -201,6 +226,7 @@ void Weave::clear()
 void Weave::mirror_x()
 {
     if(pos==pos_position){
+        m_undoStack.beginMacro("mirrorX");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
             QBitArray line=positions.at(i);
             QBitArray line2(line.size());
@@ -208,25 +234,21 @@ void Weave::mirror_x()
             for(int k=0;k<nrPositions;k++){
                 line2.setBit(k,line.at(nrPositions-k-1));
             }
-            positions[i]=line2;
+            ChangeArray *cp=new ChangeArray(&positions,i,line2);
+            m_undoStack.push(cp);
         }
+        m_undoStack.endMacro();
     }
     if(pos==pos_shaft){
+        m_undoStack.beginMacro("mirrorX");
         int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
         int start=qMin(origin_x0,origin_x1);
-        bitField field;
-        QBitArray line(l);
-        for(int i=0;i<nrShafts;i++){
-            for(int j=0;j<l;j++){
-                line.setBit(l-j-1,shafts[i].at(start+j));
-            }
-            field<<line;
+        bitField field=shafts.mid(start,l);
+        for(int j=0;j<l;j++){
+            ChangeArray *cp=new ChangeArray(&shafts,j+start,field.at(l-j-1));
+            m_undoStack.push(cp);
         }
-        for(int i=0;i<field.size();i++){
-            for(int j=0;j<l;j++){
-                shafts[i].setBit(j+start,field[i].at(j));
-            }
-        }
+        m_undoStack.endMacro();
     }
     generateWeave();
     update();
@@ -235,28 +257,43 @@ void Weave::mirror_x()
 void Weave::mirror_y()
 {
     if(pos==pos_position){
-        bitField field=positions.mid(qMin(origin_x0,origin_x1),qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1);
-        for(int i=0;i<field.size();i++){
-            positions[qMin(origin_x0,origin_x1)+i]=field.at(field.size()-i-1);
-        }
-    }
-    if(pos==pos_shaft){
+        m_undoStack.beginMacro("mirrorY");
         int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
         int start=qMin(origin_x0,origin_x1);
-        bitField field;
-        QBitArray line(l);
-        for(int i=0;i<nrShafts;i++){
-            for(int j=0;j<l;j++){
-                line.setBit(j,shafts[i].at(start+j));
-            }
-            field<<line;
+        bitField field=positions.mid(start,l);
+        for(int j=0;j<l;j++){
+            ChangeArray *cp=new ChangeArray(&positions,j+start,field.at(l-j-1));
+            m_undoStack.push(cp);
         }
-        for(int i=0;i<field.size();i++){
-            for(int j=0;j<l;j++){
-                shafts[i].setBit(j+start,field[nrShafts-i-1].at(j));
-            }
-        }
+        m_undoStack.endMacro();
     }
+    if(pos==pos_shaft){
+        m_undoStack.beginMacro("mirrorY");
+        for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
+            QBitArray line=shafts.at(i);
+            QBitArray line2(line.size());
+            for(int k=0;k<nrShafts;k++){
+                line2.setBit(k,line.at(nrShafts-k-1));
+            }
+            ChangeArray *cp=new ChangeArray(&shafts,i,line2);
+            m_undoStack.push(cp);
+        }
+        m_undoStack.endMacro();
+    }
+    generateWeave();
+    update();
+}
+
+void Weave::undo()
+{
+    m_undoStack.undo();
+    generateWeave();
+    update();
+}
+
+void Weave::redo()
+{
+    m_undoStack.redo();
     generateWeave();
     update();
 }
@@ -291,29 +328,28 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
     }
     nrLines=newLines;
 
-    if(newShafts>nrShafts){
-        QBitArray line(newCols);
-        QBitArray p(newPos);
-        for(int k=0;k<(newShafts-nrShafts);k++){
+    if(newCols>nrCols){
+        QBitArray line(nrShafts);
+        for(int k=0;k<(newCols-nrCols);k++){
             shafts<<line;
-            translation<<p;
         }
     }
-    if(newShafts<nrShafts){
-        for(int k=0;k<(nrShafts-newShafts);k++){
+    if(newCols<nrCols){
+        for(int k=0;k<(nrCols-newCols);k++){
             shafts.removeLast();
-            translation.removeLast();
         }
     }
-    nrShafts=newShafts;
+
 
     for(int k=0;k<nrLines;k++){
         lines[k].resize(newCols);
         positions[k].resize(newPos);
     }
     for(int k=0;k<nrShafts;k++){
-        shafts[k].resize(newCols);
         translation[k].resize(newPos);
+    }
+    for(int k=0;k<nrCols;k++){
+        shafts[k].resize(newShafts);
     }
 
 
@@ -363,27 +399,43 @@ void Weave::clicked(){
             int yn=y-nrShafts-yDist;
             if( x>=0 && yn>=0 && x<nrPositions && yn<nrLines){
                 if(!positions[yn].at(x)){
-                    positions[yn].fill(false);
-                    positions[yn].setBit(x,true);
+                    //positions[yn].fill(false);
+                    //positions[yn].setBit(x,true);
+                    QBitArray newLine(nrPositions);
+                    newLine.setBit(x,true);
+                    ChangeArray *cp=new ChangeArray(&positions,yn,newLine);
+                    m_undoStack.push(cp);
                 }
             }else{
                 if(x<0){
                     x=x+nrCols+xDist;
                     if( y>=0 && x<nrCols && y<nrShafts){
                         if(exclusiveShaft){
-                            if(!shafts[nrShafts-y-1].at(x)){
-                                for(int k=0;k<nrShafts;k++){
-                                    shafts[k].setBit(x,false);
-                                }
-                                shafts[nrShafts-y-1].setBit(x,true);
+                            if(!shafts[x].at(nrShafts-y-1)){
+                                //shafts[x].fill(false);
+                                //shafts[x].setBit(nrShafts-y-1,true);
+                                QBitArray newLine(nrShafts);
+                                newLine.setBit(nrShafts-y-1,true);
+                                ChangeArray *cp=new ChangeArray(&shafts,x,newLine);
+                                m_undoStack.push(cp);
                             }
                         }else{
-                            shafts[nrShafts-y-1].toggleBit(x);
+                            //shafts[x].toggleBit(nrShafts-y-1);
+                            QBitArray newLine(nrShafts);
+                            newLine=shafts[x];
+                            newLine.toggleBit(nrShafts-y-1);
+                            ChangeArray *cp=new ChangeArray(&shafts,x,newLine);
+                            m_undoStack.push(cp);
                         }
                     }
                 }else{
                     if( x>=0 && y>=0 && x<nrPositions && y<nrShafts){
-                        translation[nrShafts-y-1].toggleBit(x);
+                        //translation[nrShafts-y-1].toggleBit(x);
+                        QBitArray newLine(nrPositions);
+                        newLine=translation[nrShafts-y-1];
+                        newLine.toggleBit(x);
+                        ChangeArray *cp=new ChangeArray(&translation,nrShafts-y-1,newLine);
+                        m_undoStack.push(cp);
                     }
                 }
             }
@@ -435,63 +487,37 @@ void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
 
 void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy)
 {
+    bitField *source=&shafts;
+    bitField *target=&shafts;
+    m_undoStack.beginMacro("copy/move");
+    if(crossCopy && pos==pos_shaft){
+        target=&positions;
+        x=y;
+    }
     if(pos==pos_position){
-        int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
-        int start=qMin(origin_x0,origin_x1);
-        bitField field=positions.mid(start,l);
-        if(clearSel)
-            clear();
+        source=&positions;
+        target=source;
         if(crossCopy){
-            for(int i=0;i<nrShafts;i++){
-                for(int j=0;j<l;j++){
-                    if(j+x<0 || j+x>=nrCols)
-                        continue;
-                    shafts[i].setBit(j+x,field[j].at(i));
-                }
-            }
+            target=&shafts;
         }else{
-            if(y>start)
-                y=y-l+1;
-            for(int i=0;i<field.size();i++){
-                if(y+i<0 || y+i>=nrLines)
-                    continue;
-                positions[y+i]=field.at(i);
-            }
+            x=y;
         }
     }
-    if(pos==pos_shaft){
-        int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
-        int start=qMin(origin_x0,origin_x1);
-        bitField field;
-        QBitArray line(l);
-        for(int i=0;i<nrShafts;i++){
-            for(int j=0;j<l;j++){
-                line.setBit(j,shafts[i].at(start+j));
-            }
-            field<<line;
-        }
-        if(clearSel)
-            clear();
-        if(crossCopy){
-            for(int i=0;i<l;i++){
-                if(y+i<0 || y+i>=nrLines)
-                    continue;
-                for(int k=0;k<nrPositions;k++){
-                    positions[y+i].setBit(k,field[k].at(i));
-                }
-            }
-        }else{
-            if(x>start)
-                x=x-l+1;
-            for(int i=0;i<field.size();i++){
-                for(int j=0;j<l;j++){
-                    if(j+x<0 || j+x>nrCols)
-                        continue;
-                    shafts[i].setBit(j+x,field[i].at(j));
-                }
-            }
-        }
+    int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
+    int start=qMin(origin_x0,origin_x1);
+    bitField field=source->mid(start,l);
+    if(clearSel)
+        clear();
+    if(x>start)
+        x=x-l+1;
+    for(int i=0;i<field.size();i++){
+        if(x+i<0 || x+i>=target->size())
+            continue;
+        ChangeArray *cp=new ChangeArray(target,x+i,field.at(i));
+        m_undoStack.push(cp);
+        //(*target)[x+i]=field.at(i);
     }
+    m_undoStack.endMacro();
     generateWeave();
     update();
 }
@@ -618,8 +644,8 @@ void Weave::paint(QPainter &paint,int useScale)
     }
     for(int y=0;y<nrShafts;y++){
         QBitArray line;
-        line=shafts.at(y);
         for (int x = 0; x < nrCols; ++x) {
+            line=shafts.at(x);
             if(inSelectMode && pos==pos_shaft){
                 if(x>=qMin(origin_x0,origin_x1) && x<=qMax(origin_x0,origin_x1)){
                     paint.setPen(Qt::yellow);
@@ -627,7 +653,7 @@ void Weave::paint(QPainter &paint,int useScale)
                     paint.setPen(Qt::black);
                 }
             }
-            if(line.at(x)){
+            if(line.at(y)){
                 paint.setBrush(up);
             }else{
                 paint.setBrush(down);
