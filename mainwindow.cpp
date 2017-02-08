@@ -63,7 +63,7 @@ void MainWindow::setupMenu()
     menu->addAction("Mirror &Y",wv,SLOT(mirror_y()),QKeySequence(Qt::Key_Y));
     menu=menuBar()->addMenu("&Options");
     menu->addAction("&Config",this,SLOT(config()));
-
+    menu->addAction("&Reset Colours",this,SLOT(resetColour()));
 }
 
 void MainWindow::readSettings()
@@ -76,6 +76,7 @@ void MainWindow::readSettings()
     wv->resizeWeave(nrLines,nrCols,nrShafts,nrPositions);
     wv->clrUp=settings.value("Colour_up",QColor(Qt::blue)).value<QColor>();
     wv->clrDown=settings.value("Colour_down",QColor(Qt::green)).value<QColor>();
+    resetColour();
 }
 
 void MainWindow::writeSettings()
@@ -141,4 +142,11 @@ void MainWindow::print()
         wv->paint(painter,60);
         painter.end();
     }
+}
+
+void MainWindow::resetColour()
+{
+    wv->colColors.fill(wv->clrUp);
+    wv->lineColors.fill(wv->clrDown);
+    wv->update();
 }

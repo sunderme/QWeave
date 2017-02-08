@@ -20,6 +20,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QColorDialog>
 
 Weave::Weave(QWidget *parent) : QWidget(parent)
 {
@@ -62,7 +63,14 @@ void Weave::init()
     mouseMovePoint.setX(-1);
     mouseMovePoint.setY(-1);
 
+    lineColors.resize(nrLines);
+    lineColors.fill(clrDown);
+    colColors.resize(nrCols);
+    colColors.fill(clrUp);
+
     mode=op_none;
+
+    yOff=2;
 }
 
 void Weave::generateWeave()
@@ -125,6 +133,16 @@ void Weave::save(QString fileName)
         jsTranslations.append(bitToString(translation[k]));
     }
     jsObj["translation"]=jsTranslations;
+    QJsonArray jsLineColors;
+    for(int k=0;k<nrLines;k++){
+        jsLineColors.append(lineColors.at(k).name());
+    }
+    jsObj["lineColors"]=jsLineColors;
+    QJsonArray jsColColors;
+    for(int k=0;k<nrCols;k++){
+        jsColColors.append(colColors.at(k).name());
+    }
+    jsObj["colColors"]=jsColColors;
     jsDoc.setObject(jsObj);
     saveFile.write(jsDoc.toJson());
 }
@@ -154,6 +172,8 @@ void Weave::open(QString fileName)
     QJsonArray jsPositions=jsObj["positions"].toArray();
     QJsonArray jsShafts=jsObj["shafts"].toArray();
     QJsonArray jsTranslations=jsObj["translation"].toArray();
+    QJsonArray jsColColors=jsObj["colColors"].toArray();
+    QJsonArray jsLineColors=jsObj["lineColors"].toArray();
 
     translation.clear();
     for(int k=0;k<jsTranslations.size();k++){
@@ -168,6 +188,18 @@ void Weave::open(QString fileName)
     shafts.clear();
     for(int k=0;k<jsShafts.size();k++){
         shafts.append(stringToBit(jsShafts.at(k).toString()));
+    }
+
+    lineColors.resize(newLines);
+    lineColors.fill(clrDown);
+    for(int k=0;k<jsLineColors.size();k++){
+        lineColors[k]=QColor(jsLineColors.at(k).toString());
+    }
+
+    colColors.resize(newCols);
+    colColors.fill(clrUp);
+    for(int k=0;k<jsColColors.size();k++){
+        colColors[k]=QColor(jsColColors.at(k).toString());
     }
     // correct data imported from old format
     if(shafts.size()!=nrCols){
@@ -301,8 +333,8 @@ void Weave::redo()
 QSize Weave::sizeHint() const
 {
     int extension=2;
-    int w=scale*(nrCols+xDist+nrPositions)+extension;
-    int h=scale*(nrLines+yDist+nrShafts+1)+extension;
+    int w=scale*(nrCols+xDist+nrPositions+2)+extension;
+    int h=scale*(nrLines+yDist+nrShafts+1+yOff)+extension;
     return QSize(w,h);
 }
 
@@ -312,12 +344,14 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
     int newLines=8;
     int newShafts=6;
     int newPos=6;*/
+    lineColors.resize(newLines);
     if(newLines>nrLines){
         QBitArray line(newCols);
         QBitArray p(newPos);
         for(int k=0;k<(newLines-nrLines);k++){
             lines<<line;
             positions<<p;
+            lineColors[k+nrLines]=clrDown;
         }
     }
     if(newLines<nrLines){
@@ -328,11 +362,12 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
     }
     nrLines=newLines;
     nrShafts=newShafts;
-
+    colColors.resize(newCols);
     if(newCols>nrCols){
         QBitArray line(nrShafts);
         for(int k=0;k<(newCols-nrCols);k++){
             shafts<<line;
+            colColors[k+nrCols]=clrUp;
         }
     }
     if(newCols<nrCols){
@@ -398,6 +433,24 @@ void Weave::clicked(){
     if(x>=0 && y>=0){
         x/=scale;
         y/=scale;
+        y-=yOff;
+        if(y==-yOff && x<nrCols){
+            // change color
+            QColorDialog dlg;
+            dlg.setCurrentColor(colColors.at(x));
+            if(dlg.exec()){
+                colColors[x]=dlg.currentColor();
+            }
+        }
+        if( x==nrCols+nrPositions+2 && y>nrShafts){
+            // change color
+            int yn=y-nrShafts-yDist;
+            QColorDialog dlg;
+            dlg.setCurrentColor(lineColors.at(yn));
+            if(dlg.exec()){
+                lineColors[yn]=dlg.currentColor();
+            }
+        }
         if( x<nrCols && y>nrShafts){
             //lines[y].toggleBit(x);
         }else{
@@ -459,6 +512,7 @@ void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
     if(x>=0 && y>=0){
         x/=scale;
         y/=scale;
+        y-=yOff;
         if( x<nrCols && y>nrShafts){
             y=y-nrShafts-yDist;
             if(y<nrLines)
@@ -612,19 +666,19 @@ void Weave::paint(QPainter &paint,int useScale)
         paint.save();
         for (int x = 0; x < nrCols; ++x) {
             if(line.at(x)){
-                paint.setBrush(up);
+                paint.setBrush(colColors.at(x));
                 paint.setPen(Qt::NoPen);
-                paint.drawRect(x*useScale,(nrShafts+yDist+y)*useScale,useScale,useScale);
+                paint.drawRect(x*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale,useScale);
                 paint.setPen(Qt::SolidLine);
-                paint.drawLine(x*useScale,(nrShafts+yDist+y)*useScale,x*useScale,(nrShafts+yDist+y+1)*useScale);
-                paint.drawLine(x*useScale+useScale,(nrShafts+yDist+y)*useScale,x*useScale+useScale,(nrShafts+yDist+y+1)*useScale);
+                paint.drawLine(x*useScale,(nrShafts+yDist+y+yOff)*useScale,x*useScale,(nrShafts+yDist+y+1+yOff)*useScale);
+                paint.drawLine(x*useScale+useScale,(nrShafts+yDist+y+yOff)*useScale,x*useScale+useScale,(nrShafts+yDist+y+1+yOff)*useScale);
             }else{
-                paint.setBrush(down);
+                paint.setBrush(lineColors.at(y));
                 paint.setPen(Qt::NoPen);
-                paint.drawRect(x*useScale,(nrShafts+yDist+y)*useScale,useScale,useScale);
+                paint.drawRect(x*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale,useScale);
                 paint.setPen(Qt::SolidLine);
-                paint.drawLine(x*useScale,(nrShafts+yDist+y)*useScale,x*useScale+useScale,(nrShafts+yDist+y)*useScale);
-                paint.drawLine(x*useScale,(nrShafts+yDist+y+1)*useScale,x*useScale+useScale,(nrShafts+yDist+y+1)*useScale);
+                paint.drawLine(x*useScale,(nrShafts+yDist+y+yOff)*useScale,x*useScale+useScale,(nrShafts+yDist+y+yOff)*useScale);
+                paint.drawLine(x*useScale,(nrShafts+yDist+y+1+yOff)*useScale,x*useScale+useScale,(nrShafts+yDist+y+1+yOff)*useScale);
             }
         }
         paint.restore();
@@ -642,12 +696,21 @@ void Weave::paint(QPainter &paint,int useScale)
             }else{
                 paint.setBrush(down);
             }
-            paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts+yDist+y)*useScale,useScale,useScale);
+            paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale,useScale);
         }
         if(inSelectMode && pos==pos_position){
             paint.setPen(Qt::black);
         }
+        // paint colour selector
+        paint.setBrush(lineColors.at(y));
+        paint.drawRect((nrCols+xDist+nrPositions+1)*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale,useScale);
     }
+    // colColours
+    for (int x = 0; x < nrCols; ++x) {
+        paint.setBrush(colColors.at(x));
+        paint.drawRect(x*useScale,(0)*useScale,useScale,useScale);
+    }
+
     for(int y=0;y<nrShafts;y++){
         QBitArray line;
         for (int x = 0; x < nrCols; ++x) {
@@ -664,7 +727,7 @@ void Weave::paint(QPainter &paint,int useScale)
             }else{
                 paint.setBrush(down);
             }
-            paint.drawRect(x*useScale,(nrShafts-y-1)*useScale,useScale,useScale);
+            paint.drawRect(x*useScale,(nrShafts-y-1+yOff)*useScale,useScale,useScale);
         }
         if(inSelectMode && pos==pos_shaft){
             paint.setPen(Qt::black);
@@ -676,7 +739,7 @@ void Weave::paint(QPainter &paint,int useScale)
             }else{
                 paint.setBrush(down);
             }
-            paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts-y-1)*useScale,useScale,useScale);
+            paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts-y-1+yOff)*useScale,useScale,useScale);
         }
     }
 

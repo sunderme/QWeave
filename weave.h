@@ -46,6 +46,7 @@ public:
 
     void init();
     bitField lines,translation,shafts,positions;
+    QVector<QColor> colColors,lineColors;
     int nrLines,nrCols;
     int scale,offset;
     int nrShafts,nrPositions;
@@ -98,6 +99,8 @@ protected:
 
     panePos pos;
     int origin_x0,origin_x1;
+
+    int yOff;
 
     QUndoStack m_undoStack;
 };

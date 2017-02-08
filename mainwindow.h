@@ -41,6 +41,7 @@ private slots:
     void saveas();
     void open();
     void print();
+    void resetColour();
 private:
     QString fileName;
 
