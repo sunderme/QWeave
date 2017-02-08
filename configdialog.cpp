@@ -35,11 +35,13 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     QLabel *lblShafts=new QLabel(("Shafts"));
     sbShafts=new QSpinBox();
     sbShafts->setMinimum(2);
+    sbShafts->setMaximum(100);
     lblShafts->setBuddy(sbShafts);
 
     QLabel *lblPositions=new QLabel(("Positions"));
     sbPositions=new QSpinBox();
     sbPositions->setMinimum(2);
+    sbPositions->setMaximum(100);
     lblPositions->setBuddy(sbPositions);
 
     QPushButton *btUp=new QPushButton("up");

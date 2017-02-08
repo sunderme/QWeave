@@ -327,6 +327,7 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
         }
     }
     nrLines=newLines;
+    nrShafts=newShafts;
 
     if(newCols>nrCols){
         QBitArray line(nrShafts);
@@ -346,7 +347,12 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
         positions[k].resize(newPos);
     }
     for(int k=0;k<nrShafts;k++){
-        translation[k].resize(newPos);
+        if(k>=translation.count()){
+            QBitArray line(newPos);
+            translation<<line;
+        }else{
+            translation[k].resize(newPos);
+        }
     }
     for(int k=0;k<nrCols;k++){
         shafts[k].resize(newShafts);
