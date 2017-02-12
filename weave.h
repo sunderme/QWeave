@@ -38,6 +38,21 @@ public:
       int m_idx;
 };
 
+class ChangeColorArray : public QUndoCommand
+{
+public:
+      ChangeColorArray(QVector<QColor>* field, const int idx,const QColor &newColor)
+          : m_field(field), m_new(newColor), m_idx(idx) { setText("change pos"); }
+      virtual void undo()
+          { m_field->replace(m_idx,m_old); }
+      virtual void redo()
+          { m_old=m_field->at(m_idx) ; m_field->replace(m_idx,m_new); }
+  private:
+      QVector<QColor> *m_field;
+      QColor m_new,m_old;
+      int m_idx;
+};
+
 class Weave : public QWidget
 {
     Q_OBJECT
@@ -77,7 +92,7 @@ public slots:
     void redo();
 
 protected:
-    enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines};
+    enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines,pos_lineColors,pos_colColors};
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -97,7 +112,7 @@ protected:
     enum operationMode {op_none,op_copy,op_move};
     operationMode mode;
 
-    panePos pos;
+    panePos pos,pos1;
     int origin_x0,origin_x1;
 
     int yOff;
