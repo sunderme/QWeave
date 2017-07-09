@@ -98,9 +98,13 @@ void MainWindow::config()
     dlg->setShafts(wv->nrShafts);
     dlg->setPositions(wv->nrPositions);
     dlg->setColors(wv->clrUp,wv->clrDown);
+    dlg->setMultiShaft(wv->exclusiveShaft);
+    dlg->setMultiLines(wv->exclusiveLines);
     if(dlg->exec()){
         wv->resizeWeave(dlg->getLines(),dlg->getCols(),dlg->getShafts(),dlg->getPositions());
         dlg->getColors(wv->clrUp,wv->clrDown);
+        wv->exclusiveShaft=dlg->getMultiShaft();
+        wv->exclusiveLines=dlg->getMultiLines();
     }
     delete dlg;
 }

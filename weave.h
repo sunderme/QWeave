@@ -66,7 +66,7 @@ public:
     int scale,offset;
     int nrShafts,nrPositions;
     int xDist,yDist;
-    bool exclusiveShaft;
+    bool exclusiveShaft,exclusiveLines;
 
     QColor clrUp,clrDown;
 

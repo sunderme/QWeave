@@ -50,6 +50,14 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     connect(btUp,SIGNAL(clicked()),this,SLOT(chooseColorUp()));
     connect(btDown,SIGNAL(clicked()),this,SLOT(chooseColorDown()));
 
+    cbMultiShafts=new QCheckBox();
+    cbMultiShafts->setChecked(false);
+    cbMultiShafts->setText("exclusive shafts");
+
+    cbMultiLines=new QCheckBox();
+    cbMultiLines->setChecked(false);
+    cbMultiLines->setText("exclusive lines");
+
     QPushButton *btOK=new QPushButton(("OK"));
     QPushButton *btCancel=new QPushButton(("Cancel"));
 
@@ -67,6 +75,8 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     layGrid->addWidget(sbPositions,3,1,1,1);
     layGrid->addWidget(btUp,4,0,1,1);
     layGrid->addWidget(btDown,4,1,1,1);
+    layGrid->addWidget(cbMultiShafts,5,0,1,1);
+    layGrid->addWidget(cbMultiLines,6,0,1,1);
 
     QHBoxLayout *hlayout= new QHBoxLayout;
     hlayout->addStretch();
@@ -131,6 +141,22 @@ void configDialog::getColors(QColor &up, QColor &down)
 {
     up=m_up;
     down=m_down;
+}
+
+void configDialog::setMultiShaft(bool multiShaft){
+    cbMultiShafts->setChecked(multiShaft);
+}
+
+bool configDialog::getMultiShaft(){
+    return cbMultiShafts->isChecked();
+}
+
+void configDialog::setMultiLines(bool multiShaft){
+    cbMultiLines->setChecked(multiShaft);
+}
+
+bool configDialog::getMultiLines(){
+    return cbMultiLines->isChecked();
 }
 
 void configDialog::chooseColorUp()

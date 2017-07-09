@@ -57,6 +57,7 @@ void Weave::init()
     offset=(nrLines+yDist+nrShafts)*scale;
 
     exclusiveShaft=true;
+    exclusiveLines=true;
 
     mousePressPoint.setX(-1);
     mousePressPoint.setY(-1);
@@ -491,11 +492,19 @@ void Weave::clicked(){
             x=x-nrCols-xDist;
             int yn=y-nrShafts-yDist;
             if( x>=0 && yn>=0 && x<nrPositions && yn<nrLines){
-                if(!positions[yn].at(x)){
-                    //positions[yn].fill(false);
-                    //positions[yn].setBit(x,true);
+                if(exclusiveLines){
+                    if(!positions[yn].at(x)){
+                        //positions[yn].fill(false);
+                        //positions[yn].setBit(x,true);
+                        QBitArray newLine(nrPositions);
+                        newLine.setBit(x,true);
+                        ChangeArray *cp=new ChangeArray(&positions,yn,newLine);
+                        m_undoStack.push(cp);
+                    }
+                }else{
                     QBitArray newLine(nrPositions);
-                    newLine.setBit(x,true);
+                    newLine=positions[yn];
+                    newLine.toggleBit(x);
                     ChangeArray *cp=new ChangeArray(&positions,yn,newLine);
                     m_undoStack.push(cp);
                 }

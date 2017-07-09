@@ -19,6 +19,7 @@
 #include <QDialog>
 
 class QSpinBox;
+class QCheckBox;
 
 class configDialog : public QDialog
 {
@@ -37,12 +38,17 @@ public:
     void setPositions(int positions);
     void setColors(QColor up,QColor down);
     void getColors(QColor &up,QColor &down);
+    void setMultiShaft(bool multiShaft);
+    bool getMultiShaft();
+    void setMultiLines(bool multiShaft);
+    bool getMultiLines();
 
 public slots:
     void chooseColorUp();
     void chooseColorDown();
 private:
     QSpinBox *sbCols,*sbLines,*sbShafts,*sbPositions;
+    QCheckBox *cbMultiShafts,*cbMultiLines;
     QColor m_up,m_down;
 };
 
