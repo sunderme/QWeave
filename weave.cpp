@@ -444,7 +444,7 @@ void Weave::mousePressEvent(QMouseEvent *event){
             int x,y;
             determinePos(event->pos(),pos0,x,y);
             if(pos==pos0){
-                performCopy(x,y,mode==op_move);
+                performCopy(x,y,mode==op_move,false,(pos==pos_position)||(pos==pos_lineColors));
             }else{
                 if((pos==pos_position||pos==pos_shaft)&&(pos0==pos_position||pos0==pos_shaft)&&(nrPositions==nrShafts)){
                     performCopy(x,y,mode==op_move,true);
@@ -597,7 +597,7 @@ void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
     }
 }
 
-void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy)
+void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy,bool newOrignLeft)
 {
     bitField *source=&shafts;
     bitField *target=&shafts;
@@ -640,7 +640,7 @@ void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy)
     }
     if(clearSel)
         clear();
-    if(x>start)
+    if(!newOrignLeft)
         x=x-l+1;
     for(int i=0;i<field.size();i++){
         if(x+i<0 || x+i>=target->size())

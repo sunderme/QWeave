@@ -102,7 +102,7 @@ protected:
     void clicked();
     void determinePos(QPoint p,panePos &pos,int &x,int &y);
 
-    void performCopy(int x, int y, bool clearSel=false, bool crossCopy=false);
+    void performCopy(int x, int y, bool clearSel=false, bool crossCopy=false, bool newOrignLeft=false);
 
     QString bitToString(QBitArray bits);
     QBitArray stringToBit(QString txt);
