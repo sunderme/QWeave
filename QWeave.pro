@@ -26,8 +26,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     weave.cpp \
-    configdialog.cpp
+    configdialog.cpp \
+    genpatterndlg.cpp
 
 HEADERS  += mainwindow.h \
     weave.h \
-    configdialog.h
+    configdialog.h \
+    genpatterndlg.h

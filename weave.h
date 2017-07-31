@@ -80,6 +80,8 @@ public:
 
     void paint(QPainter &paint, int useScale=-1);
 
+    void generateColourPattern(QList<QColor> colors,QList<int> pattern,int side);
+
 public slots:
 
     void copy();
@@ -87,6 +89,9 @@ public slots:
     void clear();
     void mirror_x();
     void mirror_y();
+
+    void analyzePattern();
+    void modifySelected();
 
     void undo();
     void redo();

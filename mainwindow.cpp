@@ -29,8 +29,10 @@
 #include <QShortcut>
 
 
+
+
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),dlgPattern(0)
 {
    QScrollArea *sc=new QScrollArea;
    wv=new Weave(this);
@@ -53,17 +55,21 @@ void MainWindow::setupMenu()
     menu->addAction(tr("Save &as"),this,SLOT(saveas()));
     menu->addAction(tr("&Print"),this,SLOT(print()));
     menu->addAction(tr("&Quit"),this,SLOT(close()));
-    menu=menuBar()->addMenu("&Edit");
-    mUndoAction=menu->addAction("&Undo",wv,SLOT(undo()),QKeySequence(Qt::ControlModifier+Qt::Key_Z));
-    mRedoAction=menu->addAction("&Redo",wv,SLOT(redo()),QKeySequence(Qt::ControlModifier+Qt::ShiftModifier+Qt::Key_Z));
-    menu->addAction("&Move",wv,SLOT(move()),QKeySequence(Qt::Key_M));
-    menu->addAction("&Copy",wv,SLOT(copy()),QKeySequence(Qt::Key_C));
-    menu->addAction("C&lear",wv,SLOT(clear()),QKeySequence(Qt::Key_Delete));
-    menu->addAction("Mirror &X",wv,SLOT(mirror_x()),QKeySequence(Qt::Key_X));
-    menu->addAction("Mirror &Y",wv,SLOT(mirror_y()),QKeySequence(Qt::Key_Y));
-    menu=menuBar()->addMenu("&Options");
-    menu->addAction("&Config",this,SLOT(config()));
-    menu->addAction("&Reset Colours",this,SLOT(resetColour()));
+    menu=menuBar()->addMenu(tr("&Edit"));
+    mUndoAction=menu->addAction(tr("&Undo"),wv,SLOT(undo()),QKeySequence(Qt::ControlModifier+Qt::Key_Z));
+    mRedoAction=menu->addAction(tr("&Redo"),wv,SLOT(redo()),QKeySequence(Qt::ControlModifier+Qt::ShiftModifier+Qt::Key_Z));
+    menu->addAction(tr("&Move"),wv,SLOT(move()),QKeySequence(Qt::Key_M));
+    menu->addAction(tr("&Copy"),wv,SLOT(copy()),QKeySequence(Qt::Key_C));
+    menu->addAction(tr("C&lear"),wv,SLOT(clear()),QKeySequence(Qt::Key_Delete));
+    menu->addAction(tr("Mirror &X"),wv,SLOT(mirror_x()),QKeySequence(Qt::Key_X));
+    menu->addAction(tr("Mirror &Y"),wv,SLOT(mirror_y()),QKeySequence(Qt::Key_Y));
+    menu->addAction(tr("Generate colour &pattern"),this,SLOT(generateColourPattern()));
+    menu->addAction(tr("M&odify pattern"),wv,SLOT(modifySelected()));
+    menu->addSeparator();
+    menu->addAction(tr("&Analyze pattern"),wv,SLOT(analyzePattern()));
+    menu=menuBar()->addMenu(tr("&Options"));
+    menu->addAction(tr("&Config"),this,SLOT(config()));
+    menu->addAction(tr("&Reset Colours"),this,SLOT(resetColour()));
 }
 
 void MainWindow::readSettings()
@@ -153,4 +159,19 @@ void MainWindow::resetColour()
     wv->colColors.fill(wv->clrUp);
     wv->lineColors.fill(wv->clrDown);
     wv->update();
+}
+
+void MainWindow::generateColourPattern()
+{
+    if(!dlgPattern){
+        dlgPattern=new GenPatternDlg(this);
+    }
+    int result=dlgPattern->exec();
+    if(result){
+        // execute patterning
+        QList<QColor> lstColors;
+        lstColors=dlgPattern->getColours();
+        QList<int> pt=dlgPattern->getPattern();
+        wv->generateColourPattern(lstColors,pt,result);
+    }
 }

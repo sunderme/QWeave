@@ -14,42 +14,31 @@
     Copyright  Jan Sundermeyer    2017
     */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef GENPATTERNDLG_H
+#define GENPATTERNDLG_H
 
-#include <QMainWindow>
-#include <QAction>
-#include "weave.h"
-#include "configdialog.h"
-#include "genpatterndlg.h"
+#include <QDialog>
+#include <QtWidgets>
 
-class MainWindow : public QMainWindow
+class GenPatternDlg: public QDialog
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-    void setupMenu();
+    GenPatternDlg(QWidget *parent);
+    void setColours(QColor A,QColor B);
+    QList<QColor> getColours();
+    QList<int> getPattern();
 
-    Weave *wv;
-
-    void readSettings();
-    void writeSettings();
 private slots:
-    void config();
-    void save();
-    void saveas();
-    void open();
-    void print();
-    void resetColour();
-    void generateColourPattern();
-private:
-    QString fileName;
+    void selShafts();
+    void selLines();
+    void chooseColor();
 
-    GenPatternDlg *dlgPattern;
+protected:
+    QList<QColor> lstColors;
 
-    QAction *mUndoAction,*mRedoAction;
+    QComboBox *cbPattern;
 };
 
-#endif // MAINWINDOW_H
+#endif // GENPATTERNDLG_H

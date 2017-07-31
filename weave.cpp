@@ -21,6 +21,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QColorDialog>
+#include <QDebug>
+#include <QMessageBox>
 
 Weave::Weave(QWidget *parent) : QWidget(parent)
 {
@@ -345,6 +347,34 @@ void Weave::mirror_y()
     }
     generateWeave();
     update();
+}
+
+void Weave::analyzePattern()
+{
+    // analyze pattern
+    QVector<int> sum(nrShafts);
+    for(int i=0;i<shafts.length();i++){
+        QBitArray ba=shafts.at(i);
+        for(int k=0;k<nrShafts;k++){
+            if(ba.at(k)){
+                sum[i]++;
+            }
+        }
+    }
+    // output result
+    QString result;
+    for(int k=0;k<nrShafts;k++){
+        result+=tr("haddle %1 %2 \n").arg(k+1).arg(sum[k]);
+    }
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("analyze haddles"));
+    msgBox.setText(result);
+    msgBox.exec();
+}
+
+void Weave::modifySelected()
+{
+
 }
 
 void Weave::undo()
@@ -850,6 +880,32 @@ void Weave::paint(QPainter &paint,int useScale)
         }
     }
 
+}
+
+void Weave::generateColourPattern(QList<QColor> colors, QList<int> pattern, int side)
+{
+    m_undoStack.beginMacro("Pattern");
+    int period=pattern.length();
+    QVector<QColor> *target=&lineColors;
+    if(side==1){
+        target=&colColors;
+    }
+    // pattern colours
+    for(int k=0;k<nrLines;k++){
+        int j=k%period;
+        j=pattern.at(j);
+        if(j>=colors.length())
+            j=0;
+        if(j<0)
+            j=0;
+        //lineColors[k]=colors.at(j);
+        ChangeColorArray *ccp=new ChangeColorArray(target,k,colors.at(j));
+        m_undoStack.push(ccp);
+    }
+
+    m_undoStack.endMacro();
+    generateWeave();
+    update();
 }
 
 void Weave::paintEvent(QPaintEvent *)
