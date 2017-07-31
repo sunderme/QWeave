@@ -165,13 +165,7 @@ void MainWindow::generateColourPattern()
 {
     if(!dlgPattern){
         dlgPattern=new GenPatternDlg(this);
+        connect(dlgPattern,SIGNAL(generateColourPattern(QList<QColor>,QList<int>,int)),wv,SLOT(generateColourPattern(QList<QColor>,QList<int>,int)));
     }
-    int result=dlgPattern->exec();
-    if(result){
-        // execute patterning
-        QList<QColor> lstColors;
-        lstColors=dlgPattern->getColours();
-        QList<int> pt=dlgPattern->getPattern();
-        wv->generateColourPattern(lstColors,pt,result);
-    }
+    dlgPattern->exec();
 }

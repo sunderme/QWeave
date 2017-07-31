@@ -80,8 +80,6 @@ public:
 
     void paint(QPainter &paint, int useScale=-1);
 
-    void generateColourPattern(QList<QColor> colors,QList<int> pattern,int side);
-
 public slots:
 
     void copy();
@@ -95,6 +93,8 @@ public slots:
 
     void undo();
     void redo();
+
+    void generateColourPattern(QList<QColor> colors,QList<int> pattern,int side);
 
 protected:
     enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines,pos_lineColors,pos_colColors};

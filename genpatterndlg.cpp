@@ -76,12 +76,12 @@ QList<int> GenPatternDlg::getPattern()
 
 void GenPatternDlg::selShafts()
 {
-    done(1);
+    emit generateColourPattern(lstColors,getPattern(),1);
 }
 
 void GenPatternDlg::selLines()
 {
-    done(2);
+    emit generateColourPattern(lstColors,getPattern(),2);
 }
 
 void GenPatternDlg::chooseColor()

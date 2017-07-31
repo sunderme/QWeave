@@ -30,6 +30,9 @@ public:
     QList<QColor> getColours();
     QList<int> getPattern();
 
+signals:
+    void generateColourPattern(QList<QColor> colors,QList<int> pattern,int side);
+
 private slots:
     void selShafts();
     void selLines();
