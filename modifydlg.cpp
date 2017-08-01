@@ -24,12 +24,12 @@ Modifydlg::Modifydlg(QWidget *parent) : QDialog(parent)
     connect(tbLeft,SIGNAL(clicked()),this,SLOT(movePressed()));
 
     QGridLayout *layGrid=new QGridLayout(this);
-    layGrid->addWidget(btFlipHorz,0,0);
-    layGrid->addWidget(btFlipVert,1,0);
-    layGrid->addWidget(tbUp,2,0,1,2);
+    layGrid->addWidget(btFlipHorz,0,0,1,3);
+    layGrid->addWidget(btFlipVert,1,0,1,3);
+    layGrid->addWidget(tbUp,2,1);
     layGrid->addWidget(tbLeft,3,0);
-    layGrid->addWidget(tbRight,3,1);
-    layGrid->addWidget(tbDown,4,0,1,2);
+    layGrid->addWidget(tbRight,3,2);
+    layGrid->addWidget(tbDown,4,1);
 
 }
 
