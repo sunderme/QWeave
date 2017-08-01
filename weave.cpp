@@ -29,6 +29,7 @@ Weave::Weave(QWidget *parent) : QWidget(parent)
 {
     init();
     generateWeave();
+    setMouseTracking(true);
 }
 
 void Weave::init()
@@ -760,6 +761,25 @@ void Weave::mouseMoveEvent(QMouseEvent *event)
             update();
         }
     }
+    // generate info for status bar
+    panePos pos;
+    int x,y;
+    determinePos(mouseMovePoint,pos,x,y);
+    int zone=-1;
+    if(pos==pos_shaft){
+        zone=0;
+        // reverse x
+        x=nrCols-x;
+    }
+    if(pos==pos_translate)
+        zone=1;
+    if(pos==pos_position)
+        zone=2;
+    if(pos==pos_lines){
+        zone=3;
+        x=nrCols-x;
+    }
+    emit currentPosition(x,y,zone);
 }
 
 void Weave::wheelEvent(QWheelEvent *event)

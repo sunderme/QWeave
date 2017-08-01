@@ -82,6 +82,9 @@ public:
 
     void duplicatePattern(int shift);
 
+signals:
+    void currentPosition(int x,int y,int zone);
+
 public slots:
 
     void copy();

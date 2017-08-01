@@ -48,6 +48,7 @@ private slots:
     void generateColourPattern();
     void modifySelected();
     void duplicatePattern();
+    void updateStatus(int x,int y,int zone);
 private:
     QString fileName;
 

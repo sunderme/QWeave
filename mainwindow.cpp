@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
    setCentralWidget(sc);
    setupMenu();
    readSettings();
+   setStatusBar(new QStatusBar());
+   connect(wv,SIGNAL(currentPosition(int,int,int)),this,SLOT(updateStatus(int,int,int)));
 }
 
 MainWindow::~MainWindow()
@@ -194,4 +196,13 @@ void MainWindow::duplicatePattern()
         wv->duplicatePattern(-shift);
     }
     delete duplicatePatternDlg;
+}
+
+void MainWindow::updateStatus(int x, int y, int zone)
+{
+    QString text;
+    if(zone>=0){
+        text=QString("Position: %1 %2").arg(y).arg(x);
+    }
+    statusBar()->showMessage(text);
 }
