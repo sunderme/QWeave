@@ -22,6 +22,7 @@
 #include "weave.h"
 #include "configdialog.h"
 #include "genpatterndlg.h"
+#include "modifydlg.h"
 
 class MainWindow : public QMainWindow
 {
@@ -44,10 +45,12 @@ private slots:
     void print();
     void resetColour();
     void generateColourPattern();
+    void modifySelected();
 private:
     QString fileName;
 
     GenPatternDlg *dlgPattern;
+    Modifydlg *dlgModify;
 
     QAction *mUndoAction,*mRedoAction;
 };

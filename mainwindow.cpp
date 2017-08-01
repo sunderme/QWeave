@@ -32,7 +32,7 @@
 
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent),dlgPattern(0)
+    : QMainWindow(parent),dlgPattern(0),dlgModify(0)
 {
    QScrollArea *sc=new QScrollArea;
    wv=new Weave(this);
@@ -64,7 +64,7 @@ void MainWindow::setupMenu()
     menu->addAction(tr("Mirror &X"),wv,SLOT(mirror_x()),QKeySequence(Qt::Key_X));
     menu->addAction(tr("Mirror &Y"),wv,SLOT(mirror_y()),QKeySequence(Qt::Key_Y));
     menu->addAction(tr("Generate colour &pattern"),this,SLOT(generateColourPattern()));
-    menu->addAction(tr("M&odify pattern"),wv,SLOT(modifySelected()));
+    menu->addAction(tr("M&odify pattern"),this,SLOT(modifySelected()));
     menu->addSeparator();
     menu->addAction(tr("&Analyze pattern"),wv,SLOT(analyzePattern()));
     menu=menuBar()->addMenu(tr("&Options"));
@@ -167,5 +167,20 @@ void MainWindow::generateColourPattern()
         dlgPattern=new GenPatternDlg(this);
         connect(dlgPattern,SIGNAL(generateColourPattern(QList<QColor>,QList<int>,int)),wv,SLOT(generateColourPattern(QList<QColor>,QList<int>,int)));
     }
-    dlgPattern->exec();
+    dlgPattern->show();
+    dlgPattern->raise();
+    dlgPattern->activateWindow();
+}
+
+void MainWindow::modifySelected()
+{
+    if(!dlgModify){
+        dlgModify=new Modifydlg(this);
+        connect(dlgModify,SIGNAL(flipHorz()),wv,SLOT(mirror_x()));
+        connect(dlgModify,SIGNAL(flipVert()),wv,SLOT(mirror_y()));
+        connect(dlgModify,SIGNAL(move(int)),wv,SLOT(modifySelected(int)));
+    }
+    dlgModify->show();
+    dlgModify->raise();
+    dlgModify->activateWindow();
 }

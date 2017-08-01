@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -27,9 +27,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     weave.cpp \
     configdialog.cpp \
-    genpatterndlg.cpp
+    genpatterndlg.cpp \
+    modifydlg.cpp
 
 HEADERS  += mainwindow.h \
     weave.h \
     configdialog.h \
-    genpatterndlg.h
+    genpatterndlg.h \
+    modifydlg.h
+
+RESOURCES += \
+    images.qrc

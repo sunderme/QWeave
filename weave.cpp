@@ -23,6 +23,7 @@
 #include <QColorDialog>
 #include <QDebug>
 #include <QMessageBox>
+#include <QToolButton>
 
 Weave::Weave(QWidget *parent) : QWidget(parent)
 {
@@ -292,7 +293,7 @@ void Weave::mirror_x()
         }
         m_undoStack.endMacro();
     }
-    if(pos==pos_shaft || pos1==pos_position){
+    if(pos==pos_shaft || pos1==pos_shaft){
         m_undoStack.beginMacro("mirrorX");
         bool doColors=(pos==pos_colColors || pos1==pos_colColors);
         int l=qMax(origin_x0,origin_x1)-qMin(origin_x0,origin_x1)+1;
@@ -372,9 +373,64 @@ void Weave::analyzePattern()
     msgBox.exec();
 }
 
-void Weave::modifySelected()
+void Weave::modifySelected(int direction)
 {
-
+    if(pos!=pos1)
+        return;
+    if(pos!=pos_shaft && pos!=pos_position)
+        return;
+    bitField *target=&shafts;
+    if(pos==pos_position){
+        target=&positions;
+        direction=direction-1;
+        if(direction<0)
+            direction=direction+4;
+    }
+    int start=qMin(origin_x0,origin_x1);
+    int stop=qMax(origin_x0,origin_x1);
+    m_undoStack.beginMacro("modify");
+    QBitArray ba_helper;
+    for(int x=start;x<=stop;x++){
+        QBitArray ba=target->at(x);
+        if(direction%2==0){
+            int delta=1;
+            int k=0;
+            if(direction==0){
+                delta=-1;
+                k=ba.size()-1;
+            }
+            bool zw=ba.at(k);
+            for(k+=delta;k<ba.size()&&k>=0;k+=delta){
+                ba[k-delta]=ba.at(k);
+            }
+            ba[k-delta]=zw;
+        }else{
+            if(direction==1){
+                if(x==start){
+                    ba_helper=ba;
+                    ba=target->at(stop);
+                }else{
+                    QBitArray zw=ba;
+                    ba=ba_helper;
+                    ba_helper=zw;
+                }
+            }else{
+                if(x==start){
+                    ba_helper=ba;
+                }
+                if(x==stop){
+                    ba=ba_helper;
+                }else{
+                    ba=target->at(x+1);
+                }
+            }
+        }
+        ChangeArray *cp=new ChangeArray(target,x,ba);
+        m_undoStack.push(cp);
+    }
+    m_undoStack.endMacro();
+    generateWeave();
+    update();
 }
 
 void Weave::undo()

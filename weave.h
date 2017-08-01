@@ -89,7 +89,7 @@ public slots:
     void mirror_y();
 
     void analyzePattern();
-    void modifySelected();
+    void modifySelected(int direction);
 
     void undo();
     void redo();

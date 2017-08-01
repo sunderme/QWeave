@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="down.svgz">images/down.svgz</file>
+        <file alias="left.svgz">images/left.svgz</file>
+        <file alias="right.svgz">images/right.svgz</file>
+        <file alias="up.svgz">images/up.svgz</file>
+    </qresource>
+</RCC>
