@@ -28,13 +28,15 @@ SOURCES += main.cpp\
     weave.cpp \
     configdialog.cpp \
     genpatterndlg.cpp \
-    modifydlg.cpp
+    modifydlg.cpp \
+    duplicatpatterndlg.cpp
 
 HEADERS  += mainwindow.h \
     weave.h \
     configdialog.h \
     genpatterndlg.h \
-    modifydlg.h
+    modifydlg.h \
+    duplicatpatterndlg.h
 
 RESOURCES += \
     images.qrc

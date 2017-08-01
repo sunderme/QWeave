@@ -23,6 +23,7 @@
 #include "configdialog.h"
 #include "genpatterndlg.h"
 #include "modifydlg.h"
+#include "duplicatpatterndlg.h"
 
 class MainWindow : public QMainWindow
 {
@@ -46,6 +47,7 @@ private slots:
     void resetColour();
     void generateColourPattern();
     void modifySelected();
+    void duplicatePattern();
 private:
     QString fileName;
 

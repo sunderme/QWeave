@@ -797,6 +797,30 @@ QBitArray Weave::stringToBit(QString txt)
     return bit;
 }
 
+QBitArray Weave::shiftBitArray(QBitArray ba,int shift)
+{
+    if(!shift)
+        return ba;
+    if(abs(shift)>1){
+        int sgn=shift>0 ? 1 : -1;
+        for(int k=0;k<abs(shift);k++){
+            ba=shiftBitArray(ba,sgn);
+        }
+        return ba;
+    }
+    int delta=shift;
+    int k=0;
+    if(shift<0){
+        k=ba.size()-1;
+    }
+    bool zw=ba.at(k);
+    for(k+=delta;k<ba.size()&&k>=0;k+=delta){
+        ba[k-delta]=ba.at(k);
+    }
+    ba[k-delta]=zw;
+    return ba;
+}
+
 void Weave::paint(QPainter &paint,int useScale)
 {
     if(useScale<1)
@@ -936,6 +960,37 @@ void Weave::paint(QPainter &paint,int useScale)
         }
     }
 
+}
+
+void Weave::duplicatePattern(int shift)
+{
+    if(pos!=pos_shaft && pos!=pos_position)
+        return;
+    // duplicate and shift
+    bitField *target=&shafts;
+
+    if(pos==pos_position){
+        target=&positions;
+    }
+    m_undoStack.beginMacro("duplicate");
+    bitField zw=*target;
+    int start=zw.size()-1;
+    int delta=-1;
+    if(pos==pos_position){
+        start=0;
+        delta=1;
+    }
+    for(int i=0;i<zw.size()/2;i++){
+        QBitArray ba=zw.at(start+i*delta);
+        ChangeArray *cp=new ChangeArray(target,start+2*i*delta,ba);
+        m_undoStack.push(cp);
+        ba=shiftBitArray(ba,shift);
+        cp=new ChangeArray(target,start+2*i*delta+delta,ba);
+        m_undoStack.push(cp);
+    }
+    m_undoStack.endMacro();
+    generateWeave();
+    update();
 }
 
 void Weave::generateColourPattern(QList<QColor> colors, QList<int> pattern, int side)

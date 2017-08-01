@@ -80,6 +80,8 @@ public:
 
     void paint(QPainter &paint, int useScale=-1);
 
+    void duplicatePattern(int shift);
+
 public slots:
 
     void copy();
@@ -111,6 +113,8 @@ protected:
 
     QString bitToString(QBitArray bits);
     QBitArray stringToBit(QString txt);
+
+    QBitArray shiftBitArray(QBitArray ba,int shift);
 
     QPoint mousePressPoint,mouseMovePoint;
 

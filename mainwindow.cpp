@@ -65,6 +65,7 @@ void MainWindow::setupMenu()
     menu->addAction(tr("Mirror &Y"),wv,SLOT(mirror_y()),QKeySequence(Qt::Key_Y));
     menu->addAction(tr("Generate colour &pattern"),this,SLOT(generateColourPattern()));
     menu->addAction(tr("M&odify pattern"),this,SLOT(modifySelected()));
+    menu->addAction(tr("&Duplicate pattern"),this,SLOT(duplicatePattern()));
     menu->addSeparator();
     menu->addAction(tr("&Analyze pattern"),wv,SLOT(analyzePattern()));
     menu=menuBar()->addMenu(tr("&Options"));
@@ -183,4 +184,14 @@ void MainWindow::modifySelected()
     dlgModify->show();
     dlgModify->raise();
     dlgModify->activateWindow();
+}
+
+void MainWindow::duplicatePattern()
+{
+    DuplicatPatternDlg *duplicatePatternDlg=new DuplicatPatternDlg(this);
+    if(duplicatePatternDlg->exec()){
+        int shift=duplicatePatternDlg->sp->value();
+        wv->duplicatePattern(-shift);
+    }
+    delete duplicatePatternDlg;
 }
