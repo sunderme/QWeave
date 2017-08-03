@@ -355,11 +355,11 @@ void Weave::analyzePattern()
 {
     // analyze pattern
     QVector<int> sum(nrShafts);
-    for(int i=0;i<shafts.length();i++){
+    for(int i=0;i<nrCols;i++){
         QBitArray ba=shafts.at(i);
         for(int k=0;k<nrShafts;k++){
             if(ba.at(k)){
-                sum[i]++;
+                sum[k]++;
             }
         }
     }
