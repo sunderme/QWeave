@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QToolButton>
+#include <QDate>
 
 Weave::Weave(QWidget *parent) : QWidget(parent)
 {
@@ -167,39 +168,103 @@ void Weave::writeWIF(QString fileName)
         qWarning("Couldn't open save file.");
         return;
     }
-    QJsonDocument jsDoc;
-    QJsonObject jsObj;
-    jsObj["nrLines"]=nrLines;
-    jsObj["nrCols"]=nrCols;
-    jsObj["nrShafts"]=nrShafts;
-    jsObj["nrPositions"]=nrPositions;
-    QJsonArray jsPositions;
-    for(int k=0;k<nrLines;k++){
-        jsPositions.append(bitToString(positions[k]));
+    QTextStream out(&saveFile);
+    out<<"[WIF]\n"<<"Version=1.2\n"<<"Date="+QDate::currentDate().toString("MM/dd/yyyy")+"\n";
+    out<<"[CONTENTS]\n"<<"COLOR PALETTE=yes\n"<<"WEAVING=yes\n"<<"WARP=yes\n"<<"WEFT=yes\n"<<"TIEUP=yes\n"<<"COLOR TABLE=yes\n";
+    out<<"THREADING=yes\n"<<"WARP COLORS=yes\n"<<"TREADLING=yes\n"<<"WEFT COLORS=yes\n"<<"[WEAVING]\n";
+    out<<QString("Shafts=%1\n").arg(nrShafts);
+    out<<QString("Treadles=%1\n").arg(nrPositions);
+    out<<"Rising Shed=yes\n"<<"Profile=no\n";
+    // color palette
+    QList<QColor> lstColors;
+    for(int i=0;i<colColors.length();i++){
+        QColor clr=colColors.at(i);
+        if(!lstColors.contains(clr)){
+            lstColors<<clr;
+        }
     }
-    jsObj["positions"]=jsPositions;
-    QJsonArray jsShafts;
-    for(int k=0;k<nrCols;k++){
-        jsShafts.append(bitToString(shafts[k]));
+    for(int i=0;i<lineColors.length();i++){
+        QColor clr=lineColors.at(i);
+        if(!lstColors.contains(clr)){
+            lstColors<<clr;
+        }
     }
-    jsObj["shafts"]=jsShafts;
-    QJsonArray jsTranslations;
-    for(int k=0;k<nrShafts;k++){
-        jsTranslations.append(bitToString(translation[k]));
+    out<<"[COLOR PALETTE]\n"<<QString("Entries=%1\n").arg(lstColors.length())<<"Form=RGB\n"<<"Range=0,255\n";
+    out<<"[COLOR TABLE]\n";
+    for(int i=0;i<lstColors.length();i++){
+        out<<QString("%1=").arg(i+1);
+        QColor clr=lstColors.at(i);
+        out<<QString("%1,%2,%3\n").arg(clr.red()).arg(clr.green()).arg(clr.blue());
     }
-    jsObj["translation"]=jsTranslations;
-    QJsonArray jsLineColors;
-    for(int k=0;k<nrLines;k++){
-        jsLineColors.append(lineColors.at(k).name());
+    out<<"[WARP]\n"<<QString("Threads=%1\n").arg(nrCols);
+    out<<"Units=Centimeters\n"<<"Spacing=0.0185\n"<<"Thickness=0.0213\n"; //generic values
+    out<<"[WEFT]\n"<<QString("Threads=%1\n").arg(nrLines);
+    out<<"Units=Centimeters\n"<<"Spacing=0.0185\n"<<"Thickness=0.0213\n"; //generic values
+    out<<"[TIEUP]\n";
+    bitField transposed=transpose(translation);
+    for(int i=0;i<transposed.length();i++){
+        out<<QString("%1=").arg(i+1);
+        QBitArray ba=transposed.at(i);
+        bool first=true;
+        for(int j=0;j<ba.size();j++){
+            if(ba[j]){
+                if(!first){
+                    out<<",";
+                }
+                out<<QString("%1").arg(j+1);
+                first=false;
+            }
+        }
+        out<<"\n";
     }
-    jsObj["lineColors"]=jsLineColors;
-    QJsonArray jsColColors;
-    for(int k=0;k<nrCols;k++){
-        jsColColors.append(colColors.at(k).name());
+    out<<"[THREADING]\n";
+    for(int i=0;i<shafts.length();i++){
+        out<<QString("%1=").arg(i+1);
+        QBitArray ba=shafts.at(i);
+        bool first=true;
+        for(int j=0;j<ba.size();j++){
+            if(ba[j]){
+                if(!first){
+                    out<<",";
+                }
+                out<<QString("%1").arg(j+1);
+                first=false;
+            }
+        }
+        out<<"\n";
     }
-    jsObj["colColors"]=jsColColors;
-    jsDoc.setObject(jsObj);
-    saveFile.write(jsDoc.toJson());
+    out<<"[TREADLING]\n";
+    for(int i=0;i<positions.length();i++){
+        out<<QString("%1=").arg(i+1);
+        QBitArray ba=positions.at(i);
+        bool first=true;
+        for(int j=0;j<ba.size();j++){
+            if(ba[j]){
+                if(!first){
+                    out<<",";
+                }
+                out<<QString("%1").arg(j+1);
+                first=false;
+            }
+        }
+        out<<"\n";
+    }
+    out<<"[WARP COLORS]\n";
+    for(int i=0;i<colColors.length();i++){
+        QColor clr=colColors.at(i);
+        int paletteNumber=lstColors.indexOf(clr);
+        if(paletteNumber>=0){
+            out<<QString("%1=%2\n").arg(i+1).arg(paletteNumber+1);
+        }
+    }
+    out<<"[WEFT COLORS]\n";
+    for(int i=0;i<lineColors.length();i++){
+        QColor clr=lineColors.at(i);
+        int paletteNumber=lstColors.indexOf(clr);
+        if(paletteNumber>=0){
+            out<<QString("%1=%2\n").arg(i+1).arg(paletteNumber+1);
+        }
+    }
 }
 
 void Weave::open(QString fileName)
@@ -292,7 +357,7 @@ void Weave::readWIF(QString fileName){
     }
     QTextStream in(&loadFile);
     bool isWIF=false;
-    bool inText=false;
+    //bool inText=false;
     bool inWeaving=false;
     bool inColorTable=false;
     bool inWarp=false;
@@ -320,7 +385,7 @@ void Weave::readWIF(QString fileName){
         if(line=="[WIF]")
             isWIF=true;
         if(line.startsWith("[")){ // reset chapter if new one starts
-            inText=false;
+            //inText=false;
             inWarp=false;
             inWeft=false;
             inTieUp=false;
