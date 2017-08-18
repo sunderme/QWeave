@@ -130,7 +130,7 @@ void MainWindow::save()
 void MainWindow::saveas()
 {
     fileName = QFileDialog::getSaveFileName(this,
-          tr("Open Weave"), "", tr("QWeave Files (*.weave)"));
+          tr("Open Weave"), "", tr("QWeave Files (*.weave);; WIF Files (*.wif)"));
     if(!fileName.isEmpty())
         save();
 }
@@ -138,7 +138,7 @@ void MainWindow::saveas()
 void MainWindow::open()
 {
     fileName = QFileDialog::getOpenFileName(this,
-          tr("Open Weave"), "", tr("QWeave Files (*.weave)"));
+          tr("Open Weave"), "", tr("QWeave Files (*.weave);; WIF Files (*.wif)"));
     if(!fileName.isEmpty()){
         wv->open(fileName);
     }

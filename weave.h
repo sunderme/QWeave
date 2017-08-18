@@ -75,6 +75,10 @@ public:
     void generatePattern();
     void save(QString fileName);
     void open(QString fileName);
+    void readJson(QString fileName);
+    void readWIF(QString fileName);
+    void writeJson(QString fileName);
+    void writeWIF(QString fileName);
 
     QSize sizeHint() const;
 
@@ -118,6 +122,7 @@ protected:
     QBitArray stringToBit(QString txt);
 
     QBitArray shiftBitArray(QBitArray ba,int shift);
+    bitField transpose(bitField in);
 
     QPoint mousePressPoint,mouseMovePoint;
 

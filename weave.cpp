@@ -110,7 +110,57 @@ void Weave::generatePattern()
 
 }
 
-void Weave::save(QString fileName)
+void Weave::save(QString fileName){
+    if(fileName.endsWith(".weave")){
+        writeJson(fileName);
+    }else{
+        writeWIF(fileName);
+    }
+}
+
+void Weave::writeJson(QString fileName)
+{
+    QFile saveFile(fileName);
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return;
+    }
+    QJsonDocument jsDoc;
+    QJsonObject jsObj;
+    jsObj["nrLines"]=nrLines;
+    jsObj["nrCols"]=nrCols;
+    jsObj["nrShafts"]=nrShafts;
+    jsObj["nrPositions"]=nrPositions;
+    QJsonArray jsPositions;
+    for(int k=0;k<nrLines;k++){
+        jsPositions.append(bitToString(positions[k]));
+    }
+    jsObj["positions"]=jsPositions;
+    QJsonArray jsShafts;
+    for(int k=0;k<nrCols;k++){
+        jsShafts.append(bitToString(shafts[k]));
+    }
+    jsObj["shafts"]=jsShafts;
+    QJsonArray jsTranslations;
+    for(int k=0;k<nrShafts;k++){
+        jsTranslations.append(bitToString(translation[k]));
+    }
+    jsObj["translation"]=jsTranslations;
+    QJsonArray jsLineColors;
+    for(int k=0;k<nrLines;k++){
+        jsLineColors.append(lineColors.at(k).name());
+    }
+    jsObj["lineColors"]=jsLineColors;
+    QJsonArray jsColColors;
+    for(int k=0;k<nrCols;k++){
+        jsColColors.append(colColors.at(k).name());
+    }
+    jsObj["colColors"]=jsColColors;
+    jsDoc.setObject(jsObj);
+    saveFile.write(jsDoc.toJson());
+}
+
+void Weave::writeWIF(QString fileName)
 {
     QFile saveFile(fileName);
     if (!saveFile.open(QIODevice::WriteOnly)) {
@@ -155,6 +205,15 @@ void Weave::save(QString fileName)
 void Weave::open(QString fileName)
 {
     m_undoStack.clear();
+
+    if(fileName.endsWith(".weave")){
+        readJson(fileName);
+    }else{
+        readWIF(fileName);
+    }
+}
+
+void Weave::readJson(QString fileName){
     QFile loadFile(fileName);
 
     if (!loadFile.open(QIODevice::ReadOnly)) {
@@ -219,6 +278,257 @@ void Weave::open(QString fileName)
             zw<<ba;
         }
         shafts=zw;
+    }
+
+    generateWeave();
+}
+
+void Weave::readWIF(QString fileName){
+    QFile loadFile(fileName);
+
+    if (!loadFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning("Couldn't open save file.");
+        return;
+    }
+    QTextStream in(&loadFile);
+    bool isWIF=false;
+    bool inText=false;
+    bool inWeaving=false;
+    bool inColorTable=false;
+    bool inWarp=false;
+    bool inWeft=false;
+    bool inTieUp=false;
+    bool inThreading=false;
+    bool inTreadling=false;
+    bool inWarpColors=false;
+    bool inWeftColors=false;
+
+
+    int newNrLines=0;
+    int newNrCols=0;
+    int newNrShafts=0;
+    int newNrPositions=0;
+
+    bitField newTranslation,newShafts,newPositions;
+    QVector<QColor> newColColors,newLineColors;
+
+    QVector<QColor> lstColors;
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        // process file
+        if(line=="[WIF]")
+            isWIF=true;
+        if(line.startsWith("[")){ // reset chapter if new one starts
+            inText=false;
+            inWarp=false;
+            inWeft=false;
+            inTieUp=false;
+            inThreading=false;
+            inTreadling=false;
+            inWarpColors=false;
+            inWeftColors=false;
+            inWeaving=false;
+            inColorTable=false;
+        }
+        if(line=="[WEAVING]"){
+            inWeaving=true;
+        }
+        if(line=="[COLOR TABLE]"){
+            inColorTable=true;
+        }
+        if(line=="[WEFT]"){
+            inWeft=true;
+        }
+        if(line=="[WARP]"){
+            inWarp=true;
+        }
+        if(line=="[TIEUP]"){
+            inTieUp=true;
+        }
+        if(line=="[THREADING]"){
+            inThreading=true;
+        }
+        if(line=="[TREADLING]"){
+            inTreadling=true;
+        }
+        if(line=="[WARP COLORS]"){
+            inWarpColors=true;
+        }
+        if(line=="[WEFT COLORS]"){
+            inWeftColors=true;
+        }
+        if(inWeaving){
+            if(line.startsWith("Shafts=")){
+                newNrShafts=line.mid(7).toInt();
+            }
+            if(line.startsWith("Treadles=")){
+                newNrPositions=line.mid(9).toInt();
+            }
+        }
+        if(inColorTable){
+            int p=line.indexOf("=");
+            if(p>0){
+                QString clr=line.mid(p+1);
+                QStringList clrs=clr.split(",");
+                if(clrs.length()==3){
+                    bool ok;
+                    bool error=false;
+                    QList<int> numbers;
+                    foreach(QString elem,clrs){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
+                    }
+                    if(!error){
+                        lstColors<<QColor(numbers.at(0),numbers.at(1),numbers.at(2));
+                    }
+                }
+            }
+        }
+        if(inWarp){
+            if(line.startsWith("Threads=")){
+                newNrCols=line.mid(8).toInt();
+            }
+        }
+        if(inWeft){
+            if(line.startsWith("Threads=")){
+                newNrLines=line.mid(8).toInt();
+            }
+        }
+        if(inTieUp){
+            int p=line.indexOf("=");
+            if(p>0){
+                QString rest=line.mid(p+1);
+                QStringList strNumbers=rest.split(",");
+                QList<int> numbers;
+                bool ok;
+                bool error=false;
+                foreach(QString elem,strNumbers){
+                    numbers<<elem.toInt(&ok);
+                    error|=!ok;
+                }
+                if(!error){
+                    QBitArray ba(newNrShafts);
+                    foreach (int elem, numbers) {
+                        if(elem>0 && elem<=newNrShafts)
+                        ba.setBit(elem-1,true);
+                    }
+                    newTranslation<<ba;
+                }
+            }
+        }
+        if(inThreading){
+            int p=line.indexOf("=");
+            if(p>0){
+                QString rest=line.mid(p+1);
+                QStringList strNumbers=rest.split(",");
+                QList<int> numbers;
+                bool ok;
+                bool error=false;
+                foreach(QString elem,strNumbers){
+                    numbers<<elem.toInt(&ok);
+                    error|=!ok;
+                }
+                if(!error){
+                    QBitArray ba(newNrShafts);
+                    foreach (int elem, numbers) {
+                        if(elem>0 && elem<=newNrShafts)
+                        ba.setBit(elem-1,true);
+                    }
+                    newShafts<<ba;
+                }
+            }
+        }
+        if(inTreadling){
+            int p=line.indexOf("=");
+            if(p>0){
+                QString rest=line.mid(p+1);
+                QStringList strNumbers=rest.split(",");
+                QList<int> numbers;
+                bool ok;
+                bool error=false;
+                foreach(QString elem,strNumbers){
+                    numbers<<elem.toInt(&ok);
+                    error|=!ok;
+                }
+                if(!error){
+                    QBitArray ba(newNrPositions);
+                    foreach (int elem, numbers) {
+                        if(elem>0 && elem<=newNrPositions)
+                        ba.setBit(elem-1,true);
+                    }
+                    newPositions<<ba;
+                }
+            }
+        }
+        if(inWarpColors){
+            int p=line.indexOf("=");
+            if(p>0){
+                QString rest=line.mid(p+1);
+                QStringList strNumbers=rest.split(",");
+                QList<int> numbers;
+                bool ok;
+                bool error=false;
+                foreach(QString elem,strNumbers){
+                    numbers<<elem.toInt(&ok);
+                    error|=!ok;
+                }
+                if(!error){
+                    int nr=numbers.first();
+                    if(nr>0 && nr<=lstColors.length()){
+                        newColColors<<lstColors.at(nr-1);
+                    }
+                }
+            }
+        }
+        if(inWeftColors){
+            int p=line.indexOf("=");
+            if(p>0){
+                QString rest=line.mid(p+1);
+                QStringList strNumbers=rest.split(",");
+                QList<int> numbers;
+                bool ok;
+                bool error=false;
+                foreach(QString elem,strNumbers){
+                    numbers<<elem.toInt(&ok);
+                    error|=!ok;
+                }
+                if(!error){
+                    int nr=numbers.first();
+                    if(nr>0 && nr<=lstColors.length()){
+                        newLineColors<<lstColors.at(nr-1);
+                    }
+                }
+            }
+        }
+
+        if(!isWIF)
+            return; // abort if not first line is [WIF]
+    }
+
+
+
+    resizeWeave(newNrLines,newNrCols,newNrShafts,newNrPositions);
+
+    translation.clear();
+    translation=transpose(newTranslation);
+
+    positions.clear();
+    positions=newPositions;
+
+    shafts.clear();
+    shafts=newShafts;
+
+    lineColors.resize(newNrLines);
+    lineColors.fill(clrDown);
+    if(!newLineColors.isEmpty()){
+        lineColors=newLineColors;
+    }
+
+    colColors.resize(newNrCols);
+    colColors.fill(clrUp);
+    if(!newColColors.isEmpty()){
+        colColors=newColColors;
     }
 
     generateWeave();
@@ -840,6 +1150,28 @@ QBitArray Weave::shiftBitArray(QBitArray ba,int shift)
     }
     ba[k-delta]=zw;
     return ba;
+}
+
+bitField Weave::transpose(bitField in)
+{
+    // intended for readWIF translation (tieup)
+    // read in bitvector in y
+    // needed bitvector in x
+    bitField out;
+    if(in.isEmpty())
+        return out;
+    int wx=in.length();
+    int wy=in.at(0).size();
+    for(int y=0;y<wy;y++){
+        QBitArray ba(wx);
+        for(int x=0;x<wx;x++){
+            if(in.at(x).at(y)){
+                ba.setBit(x,true);
+            }
+        }
+        out<<ba;
+    }
+    return out;
 }
 
 void Weave::paint(QPainter &paint,int useScale)
