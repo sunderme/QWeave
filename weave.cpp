@@ -823,10 +823,10 @@ void Weave::analyzePattern()
     // output result
     QString result;
     for(int k=0;k<nrShafts;k++){
-        result+=tr("haddle %1 %2 \n").arg(k+1).arg(sum[k]);
+        result+=tr("heddle %1 %2 \n").arg(k+1).arg(sum[k]);
     }
     QMessageBox msgBox;
-    msgBox.setWindowTitle(tr("analyze haddles"));
+    msgBox.setWindowTitle(tr("analyze heddles"));
     msgBox.setText(result);
     msgBox.exec();
 }
