@@ -360,6 +360,7 @@ void Weave::readWIF(QString fileName){
     //bool inText=false;
     bool inWeaving=false;
     bool inColorTable=false;
+    bool inColorPalette=false;
     bool inWarp=false;
     bool inWeft=false;
     bool inTieUp=false;
@@ -374,204 +375,285 @@ void Weave::readWIF(QString fileName){
     int newNrShafts=0;
     int newNrPositions=0;
 
+    int maxColorNumber=255;
+
     bitField newTranslation,newShafts,newPositions;
     QVector<QColor> newColColors,newLineColors;
 
     QVector<QColor> lstColors;
+
+    QHash<QString,QStringList> doc;
+    QString key;
 
     while (!in.atEnd()) {
         QString line = in.readLine();
         // process file
         if(line=="[WIF]")
             isWIF=true;
-        if(line.startsWith("[")){ // reset chapter if new one starts
-            //inText=false;
-            inWarp=false;
-            inWeft=false;
-            inTieUp=false;
-            inThreading=false;
-            inTreadling=false;
-            inWarpColors=false;
-            inWeftColors=false;
-            inWeaving=false;
-            inColorTable=false;
+        if(line.startsWith("[")){
+            key=line;
+            doc.insert(key,QStringList());
+        }else{
+            doc[key]<<line;
         }
-        if(line=="[WEAVING]"){
+        if(!isWIF)
+            return; // abort if not first line is [WIF]
+    }
+    QStringList keyWords;
+    keyWords<<"[COLOR PALETTE]"<<"[WEAVING]"<<"[COLOR TABLE]"<<"[WEFT]"<<"[WARP]"<<"[TIEUP]"<<"[THREADING]"<<"[TREADLING]"<<"[WARP COLORS]"<<"[WEFT COLORS]";
+
+    int nr;
+
+    foreach(QString key,keyWords){
+        inWarp=false;
+        inWeft=false;
+        inTieUp=false;
+        inThreading=false;
+        inTreadling=false;
+        inWarpColors=false;
+        inWeftColors=false;
+        inWeaving=false;
+        inColorTable=false;
+        inColorPalette=false;
+        nr=-1;
+        if(key=="[WEAVING]"){
             inWeaving=true;
         }
-        if(line=="[COLOR TABLE]"){
+        if(key=="[COLOR PALETTE]"){
+            inColorPalette=true;
+        }
+        if(key=="[COLOR TABLE]"){
             inColorTable=true;
         }
-        if(line=="[WEFT]"){
+        if(key=="[WEFT]"){
             inWeft=true;
         }
-        if(line=="[WARP]"){
+        if(key=="[WARP]"){
             inWarp=true;
         }
-        if(line=="[TIEUP]"){
+        if(key=="[TIEUP]"){
             inTieUp=true;
         }
-        if(line=="[THREADING]"){
+        if(key=="[THREADING]"){
             inThreading=true;
         }
-        if(line=="[TREADLING]"){
+        if(key=="[TREADLING]"){
             inTreadling=true;
         }
-        if(line=="[WARP COLORS]"){
+        if(key=="[WARP COLORS]"){
             inWarpColors=true;
         }
-        if(line=="[WEFT COLORS]"){
+        if(key=="[WEFT COLORS]"){
             inWeftColors=true;
         }
-        if(inWeaving){
-            if(line.startsWith("Shafts=")){
-                newNrShafts=line.mid(7).toInt();
+        foreach(QString line,doc[key]){
+            if(inWeaving){
+                if(line.startsWith("Shafts=")){
+                    newNrShafts=line.mid(7).toInt();
+                }
+                if(line.startsWith("Treadles=")){
+                    newNrPositions=line.mid(9).toInt();
+                }
             }
-            if(line.startsWith("Treadles=")){
-                newNrPositions=line.mid(9).toInt();
+            if(inColorTable){
+                int p=line.indexOf("=");
+                if(p>0){
+                    QString clr=line.mid(p+1);
+                    QStringList clrs=clr.split(",");
+                    if(clrs.length()==3){
+                        bool ok;
+                        bool error=false;
+                        QList<int> numbers;
+                        foreach(QString elem,clrs){
+                            int zw=elem.toInt(&ok);
+                            if(maxColorNumber!=255){
+                                zw=qRound(zw*255.0/maxColorNumber);
+                            }
+                            numbers<<zw;
+                            error|=!ok;
+                        }
+                        if(!error){
+                            lstColors<<QColor(numbers.at(0),numbers.at(1),numbers.at(2));
+                        }
+                    }
+                }
             }
-        }
-        if(inColorTable){
-            int p=line.indexOf("=");
-            if(p>0){
-                QString clr=line.mid(p+1);
-                QStringList clrs=clr.split(",");
-                if(clrs.length()==3){
+            if(inColorPalette){
+                if(line.startsWith("Range=")){
+                    QString rest=line.mid(6);
+                    QStringList strNumbers=rest.split(",");
+                    QList<int> numbers;
                     bool ok;
                     bool error=false;
+                    foreach(QString elem,strNumbers){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
+                    }
+                    if(numbers.size()==2){
+                        maxColorNumber=numbers.last();
+                    }
+                }
+            }
+            if(inWarp){
+                if(line.startsWith("Threads=")){
+                    newNrCols=line.mid(8).toInt();
+                }
+                if(line.startsWith("Color=")){
+                    QString rest=line.mid(6);
+                    QStringList strNumbers=rest.split(",");
                     QList<int> numbers;
-                    foreach(QString elem,clrs){
+                    bool ok;
+                    bool error=false;
+                    foreach(QString elem,strNumbers){
                         numbers<<elem.toInt(&ok);
                         error|=!ok;
                     }
                     if(!error){
-                        lstColors<<QColor(numbers.at(0),numbers.at(1),numbers.at(2));
+                        nr=numbers.first();
+
+                    }
+                }
+                if(nr>0 && nr<=lstColors.length()&&newNrCols>0){
+                    newColColors.fill(lstColors.at(nr-1),newNrCols);
+                    clrUp=lstColors.at(nr-1);
+                    nr=-1;
+                }
+            }
+            if(inWeft){
+                if(line.startsWith("Threads=")){
+                    newNrLines=line.mid(8).toInt();
+                }
+                if(line.startsWith("Color=")){
+                    QString rest=line.mid(6);
+                    QStringList strNumbers=rest.split(",");
+                    QList<int> numbers;
+                    bool ok;
+                    bool error=false;
+                    foreach(QString elem,strNumbers){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
+                    }
+                    if(!error){
+                        nr=numbers.first();
+                    }
+                }
+                if(nr>0 && nr<=lstColors.length()&&newNrLines>0){
+                    newLineColors.fill(lstColors.at(nr-1),newNrLines);
+                    clrDown=lstColors.at(nr-1);
+                    nr=-1;
+                }
+            }
+            if(inTieUp){
+                int p=line.indexOf("=");
+                if(p>0){
+                    QString rest=line.mid(p+1);
+                    QStringList strNumbers=rest.split(",");
+                    QList<int> numbers;
+                    bool ok;
+                    bool error=false;
+                    foreach(QString elem,strNumbers){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
+                    }
+                    if(!error){
+                        QBitArray ba(newNrShafts);
+                        foreach (int elem, numbers) {
+                            if(elem>0 && elem<=newNrShafts)
+                                ba.setBit(elem-1,true);
+                        }
+                        newTranslation<<ba;
                     }
                 }
             }
-        }
-        if(inWarp){
-            if(line.startsWith("Threads=")){
-                newNrCols=line.mid(8).toInt();
-            }
-        }
-        if(inWeft){
-            if(line.startsWith("Threads=")){
-                newNrLines=line.mid(8).toInt();
-            }
-        }
-        if(inTieUp){
-            int p=line.indexOf("=");
-            if(p>0){
-                QString rest=line.mid(p+1);
-                QStringList strNumbers=rest.split(",");
-                QList<int> numbers;
-                bool ok;
-                bool error=false;
-                foreach(QString elem,strNumbers){
-                    numbers<<elem.toInt(&ok);
-                    error|=!ok;
-                }
-                if(!error){
-                    QBitArray ba(newNrShafts);
-                    foreach (int elem, numbers) {
-                        if(elem>0 && elem<=newNrShafts)
-                        ba.setBit(elem-1,true);
+            if(inThreading){
+                int p=line.indexOf("=");
+                if(p>0){
+                    QString rest=line.mid(p+1);
+                    QStringList strNumbers=rest.split(",");
+                    QList<int> numbers;
+                    bool ok;
+                    bool error=false;
+                    foreach(QString elem,strNumbers){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
                     }
-                    newTranslation<<ba;
-                }
-            }
-        }
-        if(inThreading){
-            int p=line.indexOf("=");
-            if(p>0){
-                QString rest=line.mid(p+1);
-                QStringList strNumbers=rest.split(",");
-                QList<int> numbers;
-                bool ok;
-                bool error=false;
-                foreach(QString elem,strNumbers){
-                    numbers<<elem.toInt(&ok);
-                    error|=!ok;
-                }
-                if(!error){
-                    QBitArray ba(newNrShafts);
-                    foreach (int elem, numbers) {
-                        if(elem>0 && elem<=newNrShafts)
-                        ba.setBit(elem-1,true);
+                    if(!error){
+                        QBitArray ba(newNrShafts);
+                        foreach (int elem, numbers) {
+                            if(elem>0 && elem<=newNrShafts)
+                                ba.setBit(elem-1,true);
+                        }
+                        newShafts<<ba;
                     }
-                    newShafts<<ba;
+                    newNrCols=newShafts.size();
                 }
             }
-        }
-        if(inTreadling){
-            int p=line.indexOf("=");
-            if(p>0){
-                QString rest=line.mid(p+1);
-                QStringList strNumbers=rest.split(",");
-                QList<int> numbers;
-                bool ok;
-                bool error=false;
-                foreach(QString elem,strNumbers){
-                    numbers<<elem.toInt(&ok);
-                    error|=!ok;
-                }
-                if(!error){
-                    QBitArray ba(newNrPositions);
-                    foreach (int elem, numbers) {
-                        if(elem>0 && elem<=newNrPositions)
-                        ba.setBit(elem-1,true);
+            if(inTreadling){
+                int p=line.indexOf("=");
+                if(p>0){
+                    QString rest=line.mid(p+1);
+                    QStringList strNumbers=rest.split(",");
+                    QList<int> numbers;
+                    bool ok;
+                    bool error=false;
+                    foreach(QString elem,strNumbers){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
                     }
-                    newPositions<<ba;
+                    if(!error){
+                        QBitArray ba(newNrPositions);
+                        foreach (int elem, numbers) {
+                            if(elem>0 && elem<=newNrPositions)
+                                ba.setBit(elem-1,true);
+                        }
+                        newPositions<<ba;
+                    }
+                    newNrLines=newPositions.size();
                 }
             }
-        }
-        if(inWarpColors){
-            int p=line.indexOf("=");
-            if(p>0){
-                QString rest=line.mid(p+1);
-                QStringList strNumbers=rest.split(",");
-                QList<int> numbers;
-                bool ok;
-                bool error=false;
-                foreach(QString elem,strNumbers){
-                    numbers<<elem.toInt(&ok);
-                    error|=!ok;
-                }
-                if(!error){
-                    int nr=numbers.first();
-                    if(nr>0 && nr<=lstColors.length()){
-                        newColColors<<lstColors.at(nr-1);
+            if(inWarpColors){
+                int p=line.indexOf("=");
+                if(p>0){
+                    QString rest=line.mid(p+1);
+                    QStringList strNumbers=rest.split(",");
+                    QList<int> numbers;
+                    bool ok;
+                    bool error=false;
+                    foreach(QString elem,strNumbers){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
+                    }
+                    if(!error){
+                        int nr=numbers.first();
+                        if(nr>0 && nr<=lstColors.length()){
+                            newColColors<<lstColors.at(nr-1);
+                        }
                     }
                 }
             }
-        }
-        if(inWeftColors){
-            int p=line.indexOf("=");
-            if(p>0){
-                QString rest=line.mid(p+1);
-                QStringList strNumbers=rest.split(",");
-                QList<int> numbers;
-                bool ok;
-                bool error=false;
-                foreach(QString elem,strNumbers){
-                    numbers<<elem.toInt(&ok);
-                    error|=!ok;
-                }
-                if(!error){
-                    int nr=numbers.first();
-                    if(nr>0 && nr<=lstColors.length()){
-                        newLineColors<<lstColors.at(nr-1);
+            if(inWeftColors){
+                int p=line.indexOf("=");
+                if(p>0){
+                    QString rest=line.mid(p+1);
+                    QStringList strNumbers=rest.split(",");
+                    QList<int> numbers;
+                    bool ok;
+                    bool error=false;
+                    foreach(QString elem,strNumbers){
+                        numbers<<elem.toInt(&ok);
+                        error|=!ok;
+                    }
+                    if(!error){
+                        int nr=numbers.first();
+                        if(nr>0 && nr<=lstColors.length()){
+                            newLineColors<<lstColors.at(nr-1);
+                        }
                     }
                 }
             }
         }
 
-        if(!isWIF)
-            return; // abort if not first line is [WIF]
     }
-
-
 
     resizeWeave(newNrLines,newNrCols,newNrShafts,newNrPositions);
 
