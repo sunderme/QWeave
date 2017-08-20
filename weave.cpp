@@ -703,7 +703,7 @@ void Weave::clear()
         }
         m_undoStack.endMacro();
     }
-    if(pos==pos_shaft || pos1==pos_position){
+    if(pos==pos_shaft || pos1==pos_shaft){
         m_undoStack.beginMacro("clear");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
             QBitArray line(nrShafts);
