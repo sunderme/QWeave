@@ -1,0 +1,18 @@
+language: cpp
+
+os: osx
+
+branches:
+  only:
+  - master
+
+before_install:
+  - brew update
+  - brew install qt5
+ 
+script: 
+  - qmake QWeave.pro
+  - make
+
+
+
