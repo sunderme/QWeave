@@ -36,27 +36,27 @@ Weave::Weave(QWidget *parent) : QWidget(parent)
 void Weave::init()
 {
     QBitArray line(4);
-    line.setBit(1,true);
+    /*line.setBit(1,true);
     line.setBit(3,true);
     QBitArray line2(4);
     line2.setBit(0,true);
-    line2.setBit(2,true);
-    lines<<line<<line2<<line<<line2;
+    line2.setBit(2,true);*/
+    lines<<line<<line<<line<<line;
     nrCols=4;
     nrLines=lines.count();
     scale=8;
 
-    QBitArray line3(4);
-    line3.setBit(0,true);
-    positions<<line3<<line3<<line3<<line3;
+    //QBitArray line3(4);
+    //line3.setBit(0,true);
+    positions<<line<<line<<line<<line;
     nrPositions=4;
 
-    QBitArray line4(4);
-    translation<<line3<<line4<<line4<<line4;
+    //QBitArray line4(4);
+    translation<<line<<line<<line<<line;
 
     nrShafts=4;
-    line3.fill(false,0,3);
-    shafts<<line<<line2<<line3<<line3;
+    //line3.fill(false,0,3);
+    shafts<<line<<line<<line<<line;
     xDist=1;
     yDist=1;
     offset=(nrLines+yDist+nrShafts)*scale;
@@ -68,6 +68,9 @@ void Weave::init()
     mousePressPoint.setY(-1);
     mouseMovePoint.setX(-1);
     mouseMovePoint.setY(-1);
+
+    clrDown=Qt::white;
+    clrUp=Qt::black;
 
     lineColors.resize(nrLines);
     lineColors.fill(clrDown);
@@ -1499,11 +1502,13 @@ void Weave::generateColourPattern(QList<QColor> colors, QList<int> pattern, int 
     m_undoStack.beginMacro("Pattern");
     int period=pattern.length();
     QVector<QColor> *target=&lineColors;
+    int end=nrLines;
     if(side==1){
         target=&colColors;
+        end=nrCols;
     }
     // pattern colours
-    for(int k=0;k<nrLines;k++){
+    for(int k=0;k<end;k++){
         int j=k%period;
         j=pattern.at(j);
         if(j>=colors.length())

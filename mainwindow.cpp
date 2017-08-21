@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
    sc->setWidget(wv);
    setCentralWidget(sc);
    setupMenu();
-   readSettings();
+   //readSettings();
    setStatusBar(new QStatusBar());
    connect(wv,SIGNAL(currentPosition(int,int,int)),this,SLOT(updateStatus(int,int,int)));
 }
