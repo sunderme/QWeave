@@ -1,18 +1,20 @@
 language: cpp
-
 os: osx
-
 branches:
   only:
   - master
-
 before_install:
-  - brew update
-  - brew install qt5
- 
-script: 
-  - qmake QWeave.pro
-  - make
-
-
-
+- brew update
+- brew install qt5
+script:
+- qmake QWeave.pro
+- make
+- macdeployqt QWeave.app -dmg
+deploy:
+  provider: bintray
+  skip_cleanup: true
+  file: "${TRAVIS_BUILD_DIR}/QWeave.dmg"
+  user: sunderme
+bintray:
+  key:
+    secure: D88uJJLnVQkhCUgs9kKwnC5/yNoi7IhzCXME7BwxD6VgZ0AB1Pfa27ARFGPgy38guAaE+PoPqnUhw3GCHnzflvtJMBcNchqkVcTKc5lCfZjORKsRhErkFCkIp69II0A3LlbGpgEUFrOs8rCwOfLEKRc1V/pOpVpbhTWz2BFT+xv7VIJ0T03PELUD9tmp68BdyDNKgOc/UkdQ9KsUW5vyI+asL1l5V9aWy6CtP2lB9RLwMBAnd40IJARYZ7hzxovSzsfFsx8UhJZl3L5lcMseHGytIKv00OnIuM+OnOGwuQkBOtGjc44FFXsqy+v2SfaHL2xuXiX/ASNKfkWr7PeWpPdepEnLP1kyF4Z4+eZrXFTe0I6Ri6OUh5KX5PZDjIqsJ1n9L7rkwmZ8KUX5r4+x+cXiNCfaOQeHD2wcyYknu1AR3pQEFs8kZMMCwH42O9rmyqSeOY5/1YrRTeem4H9g916gK6/xFiFgxZQ8zR8/m5ROd9dbgFWlcANYprWjh7Zlh4sHEzdRmlMDAWsT1tDuYqWVvJqwZSIaY6yLRcP4Aj5E8nMFaKakAL/6SeoAmC6jN/HebXl7IGRpX385CA03dpENx0AetxNK5iinxnnXl2F3lsUkc4t+gs43U9xAFjF4cqOHIk/gp+7X3TAVObSmBuFDs1hVzktAxPjpnQfLxQ0=
