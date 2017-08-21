@@ -1329,8 +1329,9 @@ void Weave::paint(QPainter &paint,int useScale)
 {
     if(useScale<1)
         useScale=scale;
-    QBrush up(clrUp);
-    QBrush down(clrDown);
+    QBrush up(Qt::black);
+    QBrush down(Qt::white);
+    paint.setPen(Qt::darkGray);
     // check if mouseDrag
     bool inSelectMode=false;
     pos=pos_none;
@@ -1389,7 +1390,7 @@ void Weave::paint(QPainter &paint,int useScale)
                 if(y>=qMin(origin_x0,origin_x1) && y<=qMax(origin_x0,origin_x1)){
                     paint.setPen(Qt::yellow);
                 }else{
-                    paint.setPen(Qt::black);
+                    paint.setPen(Qt::darkGray);
                 }
             }
             if(line.at(x)){
@@ -1400,20 +1401,20 @@ void Weave::paint(QPainter &paint,int useScale)
             paint.drawRect((x+nrCols+xDist)*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale,useScale);
         }
         if(inSelectMode && (pos==pos_position || pos1==pos_position)){
-            paint.setPen(Qt::black);
+            paint.setPen(Qt::darkGray);
         }
         // paint colour selector
         if(inSelectMode && (pos==pos_lineColors || pos1==pos_lineColors)){
             if(y>=qMin(origin_x0,origin_x1) && y<=qMax(origin_x0,origin_x1)){
                 paint.setPen(Qt::yellow);
             }else{
-                paint.setPen(Qt::black);
+                paint.setPen(Qt::darkGray);
             }
         }
         paint.setBrush(lineColors.at(y));
         paint.drawRect((nrCols+xDist+nrPositions+1)*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale,useScale);
         if(inSelectMode && (pos==pos_lineColors || pos1==pos_lineColors)){
-            paint.setPen(Qt::black);
+            paint.setPen(Qt::darkGray);
         }
     }
     // colColours
@@ -1422,13 +1423,13 @@ void Weave::paint(QPainter &paint,int useScale)
             if(x>=qMin(origin_x0,origin_x1) && x<=qMax(origin_x0,origin_x1)){
                 paint.setPen(Qt::yellow);
             }else{
-                paint.setPen(Qt::black);
+                paint.setPen(Qt::darkGray);
             }
         }
         paint.setBrush(colColors.at(x));
         paint.drawRect(x*useScale,(0)*useScale,useScale,useScale);
         if(inSelectMode && (pos==pos_colColors || pos1==pos_colColors)){
-            paint.setPen(Qt::black);
+            paint.setPen(Qt::darkGray);
         }
     }
 
@@ -1440,7 +1441,7 @@ void Weave::paint(QPainter &paint,int useScale)
                 if(x>=qMin(origin_x0,origin_x1) && x<=qMax(origin_x0,origin_x1)){
                     paint.setPen(Qt::yellow);
                 }else{
-                    paint.setPen(Qt::black);
+                    paint.setPen(Qt::darkGray);
                 }
             }
             if(line.at(y)){
@@ -1451,7 +1452,7 @@ void Weave::paint(QPainter &paint,int useScale)
             paint.drawRect(x*useScale,(nrShafts-y-1+yOff)*useScale,useScale,useScale);
         }
         if(inSelectMode && (pos==pos_shaft || pos1==pos_shaft)){
-            paint.setPen(Qt::black);
+            paint.setPen(Qt::darkGray);
         }
         line=translation.at(y);
         for (int x = 0; x < nrPositions; ++x) {
