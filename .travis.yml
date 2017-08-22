@@ -7,9 +7,9 @@ before_install:
 - brew update
 - brew install qt5
 script:
-- qmake QWeave.pro
+- /usr/local/opt/qt/bin/qmake QWeave.pro
 - make
-- macdeployqt QWeave.app -dmg
+- /usr/local/opt/qt/bin/macdeployqt QWeave.app -dmg
 deploy:
   provider: bintray
   skip_cleanup: true
