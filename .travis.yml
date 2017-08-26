@@ -17,3 +17,4 @@ deploy:
   file: QWeave.dmg
   on:
     repo: sunderme/QWeave
+    tags: true
