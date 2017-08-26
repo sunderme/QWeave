@@ -1432,6 +1432,30 @@ void Weave::paint(QPainter &paint,int useScale)
             paint.setPen(Qt::darkGray);
         }
     }
+    // measurement lines
+    paint.save();
+    paint.setPen(Qt::darkRed);
+    bool large=true;
+    for (int x = nrCols; x >= 0; x-=5) {
+        if(large){
+            paint.drawLine(x*useScale,(2)*useScale,x*useScale,qRound(1.5*useScale));
+        }else{
+            paint.drawLine(x*useScale,(2)*useScale,x*useScale,qRound(1.7*useScale));
+        }
+        large=!large;
+    }
+    large=true;
+    for(int y=0;y<nrLines;y+=5){
+        int xOff=(nrCols+nrPositions+xDist)*useScale;
+        int yOffset=(yOff+nrShafts+1)*useScale;
+        if(large){
+            paint.drawLine(xOff,y*useScale+yOffset,qRound(xOff+0.5*useScale),y*useScale+yOffset);
+        }else{
+            paint.drawLine(xOff,y*useScale+yOffset,qRound(xOff+0.2*useScale),y*useScale+yOffset);
+        }
+        large=!large;
+    }
+    paint.restore();
 
     for(int y=0;y<nrShafts;y++){
         QBitArray line;
