@@ -11,10 +11,10 @@ script:
 - make
 - "/usr/local/opt/qt/bin/macdeployqt QWeave.app -dmg"
 deploy:
-  provider: releases
-  api_key:
-    secure: Ay2Jzxa5ummLKGB50xdMUVQHHidZptMTw79RcRSHgSDYIqEHLNMptjacXaBPfebTFq6R41f1D77wv6Ky2Sw2mmROpYN7YTUizLSfjxxn4P7PAueX8WCOm/HXapdjenVxzkOeVdApXFCrljfsZj04JN/PVvGsWdc9GSUzpkrON3IY/yR/OH8WEMbzOFIUKpIDjRfWKVtT1YPTY5h0718PY7QInnV6lJRSJDuGa2E1WZ1/NSFFUwM/Oiq1hoq17IhnlmW8Dmk3rCWUR6iIwMXoPQll6/vwAeMa1dw0Zg9yXp5Dj6bDcX+qrpC9Nj9LMf0/qtCo5tQSkTd74vWpbBFRsBxYh9n/ED6D6qXqqU0JoY6bEvFhCC/8jQb5upJnoC2D7iLWGM4tJQUHisamD2T9++fE68/x6gV4JgJ2H6RqeUJHJDwq+sjknYrjxGMES/p9Mo3obs+wE+SbjWat1rkkM7+Ow6mbUXKKD3b7HMsz01w9ExP+7uE71ayu37UsLbrCa7XfHu2QtKdHL8zMHogW/NjwaONHku2ruCW8Cc8/0FjFDWq0XpriK7ySuYuhgWbP38WKzKyQA531Yh/kaTJAplPWUOf3NPue3fEStBtGrrHutunHWdZfvfjZ+Z3kNKC6+Sw4ne+JgScIM+Z7PKhLKpiU/cEe0Bdj+kD0GNIle9s=
-  file: QWeave.dmg
-  on:
-    repo: sunderme/QWeave
-    tags: true
+  provider: bintray
+  skip_cleanup: true
+  file: "${TRAVIS_BUILD_DIR}/bintray.json"
+  user: sunderme
+  key:
+    secure: D88uJJLnVQkhCUgs9kKwnC5/yNoi7IhzCXME7BwxD6VgZ0AB1Pfa27ARFGPgy38guAaE+PoPqnUhw3GCHnzflvtJMBcNchqkVcTKc5lCfZjORKsRhErkFCkIp69II0A3LlbGpgEUFrOs8rCwOfLEKRc1V/pOpVpbhTWz2BFT+xv7VIJ0T03PELUD9tmp68BdyDNKgOc/UkdQ9KsUW5vyI+asL1l5V9aWy6CtP2lB9RLwMBAnd40IJARYZ7hzxovSzsfFsx8UhJZl3L5lcMseHGytIKv00OnIuM+OnOGwuQkBOtGjc44FFXsqy+v2SfaHL2xuXiX/ASNKfkWr7PeWpPdepEnLP1kyF4Z4+eZrXFTe0I6Ri6OUh5KX5PZDjIqsJ1n9L7rkwmZ8KUX5r4+x+cXiNCfaOQeHD2wcyYknu1AR3pQEFs8kZMMCwH42O9rmyqSeOY5/1YrRTeem4H9g916gK6/xFiFgxZQ8zR8/m5ROd9dbgFWlcANYprWjh7Zlh4sHEzdRmlMDAWsT1tDuYqWVvJqwZSIaY6yLRcP4Aj5E8nMFaKakAL/6SeoAmC6jN/HebXl7IGRpX385CA03dpENx0AetxNK5iinxnnXl2F3lsUkc4t+gs43U9xAFjF4cqOHIk/gp+7X3TAVObSmBuFDs1hVzktAxPjpnQfLxQ0=
+
