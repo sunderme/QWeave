@@ -12,7 +12,7 @@
         "licenses": ["GPLv3"],
         "labels": ["weave"],
         "public_download_numbers": false,
-        "public_stats": false,
+        "public_stats": false
     },
 
     "version": {
