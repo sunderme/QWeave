@@ -25,7 +25,10 @@
 
     "files":
         [
-        {"includePattern": "QWeave.dmg", "excludePattern": ".*/do-not-deploy/.*", "uploadPattern": "Weave.dmg"}
+        {"includePattern": "QWeave.dmg", "excludePattern": ".*/do-not-deploy/.*", "uploadPattern": "Weave.dmg",
+	"matrixParams": {
+        "override": 1 }
+    	}
         ],
     "publish": true
 }
