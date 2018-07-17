@@ -193,7 +193,8 @@ void MainWindow::duplicatePattern()
     DuplicatPatternDlg *duplicatePatternDlg=new DuplicatPatternDlg(this);
     if(duplicatePatternDlg->exec()){
         int shift=duplicatePatternDlg->sp->value();
-        wv->duplicatePattern(-shift);
+        int times=duplicatePatternDlg->sp2->value();
+        wv->duplicatePattern(-shift,times);
     }
     delete duplicatePatternDlg;
 }

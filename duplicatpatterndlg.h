@@ -10,7 +10,7 @@ class DuplicatPatternDlg : public QDialog
 public:
     explicit DuplicatPatternDlg(QWidget *parent = nullptr);
 
-    QSpinBox *sp;
+    QSpinBox *sp,*sp2;
 signals:
 
 public slots:

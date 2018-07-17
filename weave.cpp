@@ -1491,9 +1491,9 @@ void Weave::paint(QPainter &paint,int useScale)
 
 }
 
-void Weave::duplicatePattern(int shift)
+void Weave::duplicatePattern(int shift,int times)
 {
-    if(pos!=pos_shaft && pos!=pos_position)
+    if(pos!=pos_shaft && pos!=pos_position && pos != pos_none)
         return;
     // duplicate and shift
     bitField *target=&shafts;
@@ -1509,13 +1509,15 @@ void Weave::duplicatePattern(int shift)
         start=0;
         delta=1;
     }
-    for(int i=0;i<zw.size()/2;i++){
+    for(int i=0;i<zw.size()/(times+1);i++){
         QBitArray ba=zw.at(start+i*delta);
-        ChangeArray *cp=new ChangeArray(target,start+2*i*delta,ba);
+        ChangeArray *cp=new ChangeArray(target,start+(times+1)*i*delta,ba);
         m_undoStack.push(cp);
-        ba=shiftBitArray(ba,shift);
-        cp=new ChangeArray(target,start+2*i*delta+delta,ba);
-        m_undoStack.push(cp);
+        for(int k=0;k<times;k++){
+            ba=shiftBitArray(ba,shift);
+            cp=new ChangeArray(target,start+(times+1)*i*delta+delta*(k+1),ba);
+            m_undoStack.push(cp);
+        }
     }
     m_undoStack.endMacro();
     generateWeave();

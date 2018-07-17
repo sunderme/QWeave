@@ -84,7 +84,7 @@ public:
 
     void paint(QPainter &paint, int useScale=-1);
 
-    void duplicatePattern(int shift);
+    void duplicatePattern(int shift, int times=1);
 
 signals:
     void currentPosition(int x,int y,int zone);
