@@ -105,6 +105,10 @@ void MainWindow::readSettings()
     wv->clrUp=settings.value("Colour_up",QColor(Qt::blue)).value<QColor>();
     wv->clrDown=settings.value("Colour_down",QColor(Qt::green)).value<QColor>();
     recentFilesList=settings.value("recent files").toStringList();
+    // cut recent files to <=9
+    while(recentFilesList.size()>9){
+        recentFilesList.removeLast();
+    }
     resetColour();
 }
 
