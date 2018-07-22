@@ -32,14 +32,14 @@
 
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent),dlgPattern(0),dlgModify(0)
+    : QMainWindow(parent),dlgPattern(nullptr),dlgModify(nullptr)
 {
    QScrollArea *sc=new QScrollArea;
    wv=new Weave(this);
    sc->setWidget(wv);
    setCentralWidget(sc);
+   readSettings();
    setupMenu();
-   //readSettings();
    setStatusBar(new QStatusBar());
    connect(wv,SIGNAL(currentPosition(int,int,int)),this,SLOT(updateStatus(int,int,int)));
 }
@@ -53,6 +53,7 @@ void MainWindow::setupMenu()
 {
     QMenu *menu=menuBar()->addMenu(tr("&File"));
     menu->addAction(tr("&Open"),this,SLOT(open()));
+    recentMenu=menu->addMenu("Open recently...");
     menu->addAction(tr("&Save"),this,SLOT(save()));
     menu->addAction(tr("Save &as"),this,SLOT(saveas()));
     menu->addAction(tr("&Print"),this,SLOT(print()));
@@ -73,6 +74,24 @@ void MainWindow::setupMenu()
     menu=menuBar()->addMenu(tr("&Options"));
     menu->addAction(tr("&Config"),this,SLOT(config()));
     menu->addAction(tr("&Reset Colours"),this,SLOT(resetColour()));
+    // recent files
+
+    updateRecent();
+}
+
+void MainWindow::updateRecent()
+{
+    recentMenu->clear();
+    for (int i = 0; i < qMin(9,recentFilesList.size()); i++) {
+        QAction *act = new QAction();
+        act->setVisible(true);
+        QString temp = recentFilesList.at(i);
+        temp.replace("&", "&&");
+        act->setText(QString("&%1 %2").arg(i+1).arg(temp));
+        act->setData(recentFilesList.at(i));
+        connect(act,SIGNAL(triggered()),this,SLOT(openRecent()));
+        recentMenu->addAction(act);
+    }
 }
 
 void MainWindow::readSettings()
@@ -85,6 +104,7 @@ void MainWindow::readSettings()
     wv->resizeWeave(nrLines,nrCols,nrShafts,nrPositions);
     wv->clrUp=settings.value("Colour_up",QColor(Qt::blue)).value<QColor>();
     wv->clrDown=settings.value("Colour_down",QColor(Qt::green)).value<QColor>();
+    recentFilesList=settings.value("recent files").toStringList();
     resetColour();
 }
 
@@ -97,6 +117,7 @@ void MainWindow::writeSettings()
     settings.setValue("nrPositions",wv->nrPositions);
     settings.setValue("Colour_up",wv->clrUp);
     settings.setValue("Colour_down",wv->clrDown);
+    settings.setValue("recent files",recentFilesList);
 }
 
 void MainWindow::config()
@@ -131,8 +152,12 @@ void MainWindow::saveas()
 {
     fileName = QFileDialog::getSaveFileName(this,
           tr("Open Weave"), "", tr("QWeave Files (*.weave);; WIF Files (*.wif)"));
-    if(!fileName.isEmpty())
+    if(!fileName.isEmpty()){
         save();
+        recentFilesList.removeAll(fileName);
+        recentFilesList.prepend(fileName);
+        updateRecent();
+    }
 }
 
 void MainWindow::open()
@@ -141,6 +166,21 @@ void MainWindow::open()
           tr("Open Weave"), "", tr("QWeave Files (*.weave);; WIF Files (*.wif)"));
     if(!fileName.isEmpty()){
         wv->open(fileName);
+        recentFilesList.removeAll(fileName);
+        recentFilesList.prepend(fileName);
+        updateRecent();
+    }
+}
+
+void MainWindow::openRecent()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    QString fileName=act->data().toString();
+    if(!fileName.isEmpty()){
+        wv->open(fileName);
+        recentFilesList.removeAll(fileName);
+        recentFilesList.prepend(fileName);
+        updateRecent();
     }
 }
 

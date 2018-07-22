@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void setupMenu();
 
@@ -49,6 +49,8 @@ private slots:
     void modifySelected();
     void duplicatePattern();
     void updateStatus(int x,int y,int zone);
+    void updateRecent();
+    void openRecent();
 private:
     QString fileName;
 
@@ -56,6 +58,10 @@ private:
     Modifydlg *dlgModify;
 
     QAction *mUndoAction,*mRedoAction;
+
+    QMenu *recentMenu;
+
+    QStringList recentFilesList;
 };
 
 #endif // MAINWINDOW_H
