@@ -1,0 +1,11 @@
+.moc
+Makefile
+.obj
+.ui
+qrc_*.cpp
+.qmake.stash
+*.o
+moc_*
+QWeave
+QWeave.debug
+QWeave.pro.user

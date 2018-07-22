@@ -1329,8 +1329,8 @@ bitField Weave::transpose(bitField in)
 
 void Weave::paint(QPainter &paint,int useScale)
 {
-    QTime time;
-    time.start();
+    /*QTime time;
+    time.start();*/
     //CALLGRIND_START_INSTRUMENTATION;
     if(useScale<1)
         useScale=scale;
@@ -1424,7 +1424,7 @@ void Weave::paint(QPainter &paint,int useScale)
             paint.setPen(Qt::darkGray);
         }
     }
-    qDebug()<<time.elapsed();
+    //qDebug()<<time.elapsed();
     // colColours
     for (int x = 0; x < nrCols; ++x) {
         if(inSelectMode && (pos==pos_colColors || pos1==pos_colColors)){
