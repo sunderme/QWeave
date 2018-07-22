@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QToolButton>
 #include <QDate>
+#include <QPixmapCache>
 
 //#include <valgrind/callgrind.h>
 
@@ -1329,8 +1330,8 @@ bitField Weave::transpose(bitField in)
 
 void Weave::paint(QPainter &paint,int useScale)
 {
-    /*QTime time;
-    time.start();*/
+    QTime time;
+    time.start();
     //CALLGRIND_START_INSTRUMENTATION;
     if(useScale<1)
         useScale=scale;
@@ -1366,8 +1367,8 @@ void Weave::paint(QPainter &paint,int useScale)
             }
         }
     }
-
     //
+    QPixmapCache pmCache;
     for(int y=0;y<nrLines;y++){
         QBitArray line;
         line=lines.at(y);
@@ -1380,14 +1381,22 @@ void Weave::paint(QPainter &paint,int useScale)
         //paint.drawLine(0,(nrShafts+yDist+y+yOff)*useScale,nrCols*useScale,(nrShafts+yDist+y+yOff)*useScale);
         //paint.drawLine(0,(nrShafts+yDist+y+1+yOff)*useScale,nrCols*useScale,(nrShafts+yDist+y+1+yOff)*useScale);
         // draw up
+        QPixmap cached(useScale+1,useScale+1);
         for (int x = 0; x < nrCols; ++x) {
             if(line.at(x)){
-                paint.setBrush(colColors.at(x));
-                paint.setPen(Qt::NoPen);
-                paint.drawRect(x*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale,useScale);
-                paint.setPen(Qt::SolidLine);
-                paint.drawLine(x*useScale,(nrShafts+yDist+y+yOff)*useScale,x*useScale,(nrShafts+yDist+y+1+yOff)*useScale);
-                paint.drawLine(x*useScale+useScale,(nrShafts+yDist+y+yOff)*useScale,x*useScale+useScale,(nrShafts+yDist+y+1+yOff)*useScale);
+                QColor clr=colColors.at(x);
+                if(!pmCache.find(clr.name(),&cached)){
+                    QPainter pt(&cached);
+                    pt.setBrush(clr);
+                    pt.setPen(Qt::NoPen);
+                    pt.drawRect(0,0,useScale,useScale);
+                    pt.setPen(Qt::SolidLine);
+                    pt.drawLine(0,0,0,useScale);
+                    pt.drawLine(useScale,0,useScale,useScale);
+                    pmCache.insert(clr.name(),cached);
+                }
+                paint.drawPixmap(x*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale+1,useScale+1,cached);
+                //x*useScale,(nrShafts+yDist+y+yOff)*useScale
             }
         }
         paint.restore();
@@ -1424,7 +1433,7 @@ void Weave::paint(QPainter &paint,int useScale)
             paint.setPen(Qt::darkGray);
         }
     }
-    //qDebug()<<time.elapsed();
+    qDebug()<<time.elapsed();
     // colColours
     for (int x = 0; x < nrCols; ++x) {
         if(inSelectMode && (pos==pos_colColors || pos1==pos_colColors)){
