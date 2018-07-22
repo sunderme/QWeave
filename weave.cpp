@@ -995,7 +995,7 @@ void Weave::mousePressEvent(QMouseEvent *event){
                 performCopy(x,y,mode==op_move,false,(pos==pos_position)||(pos==pos_lineColors));
             }else{
                 if((pos==pos_position||pos==pos_shaft)&&(pos0==pos_position||pos0==pos_shaft)&&(nrPositions==nrShafts)){
-                    performCopy(x,y,mode==op_move,true);
+                    performCopy(x,y,mode==op_move,true,pos0==pos_position);
                 }
             }
 
@@ -1149,8 +1149,8 @@ void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy,bool newOrignL
 {
     bitField *source=&shafts;
     bitField *target=&shafts;
-    QVector<QColor> *source2=0;
-    QVector<QColor> *target2=0;
+    QVector<QColor> *source2=nullptr;
+    QVector<QColor> *target2=nullptr;
     m_undoStack.beginMacro("copy/move");
     if(pos==pos_colColors || pos1==pos_colColors){
         source2=&colColors;
