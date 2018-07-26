@@ -57,7 +57,7 @@ class Weave : public QWidget
 {
     Q_OBJECT
 public:
-    explicit Weave(QWidget *parent = 0);
+    explicit Weave(QWidget *parent = nullptr);
 
     void init();
     bitField lines,translation,shafts,positions;
@@ -105,6 +105,10 @@ public slots:
 
     void generateColourPattern(QList<QColor> colors,QList<int> pattern,int side);
 
+    void setInvertPattern(bool invert=false){
+        m_showInverted=invert;
+    }
+
 protected:
     enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines,pos_lineColors,pos_colColors};
     void paintEvent(QPaintEvent *event);
@@ -133,6 +137,8 @@ protected:
     int origin_x0,origin_x1;
 
     int yOff;
+
+    bool m_showInverted;
 
     QUndoStack m_undoStack;
 };

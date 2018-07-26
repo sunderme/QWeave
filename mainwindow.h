@@ -51,6 +51,7 @@ private slots:
     void updateStatus(int x,int y,int zone);
     void updateRecent();
     void openRecent();
+    void selectView(bool fromBottom=false);
 private:
     QString fileName;
 

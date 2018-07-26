@@ -83,6 +83,8 @@ void Weave::init()
     mode=op_none;
 
     yOff=2;
+
+    m_showInverted=false;
 }
 
 void Weave::generateWeave()
@@ -104,8 +106,14 @@ void Weave::generateWeave()
         QBitArray zw(nrShafts);
         for(int k=0;k<nrCols;k++){
             zw=shafts[k]&s;
-            if(zw.count(true)){
-                line.setBit(k,true);
+            if(m_showInverted){
+                if(!zw.count(true)){
+                    line.setBit(k,true);
+                }
+            }else{
+                if(zw.count(true)){
+                    line.setBit(k,true);
+                }
             }
         }
         lines[y]=line;
