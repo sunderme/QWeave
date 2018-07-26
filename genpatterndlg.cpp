@@ -5,7 +5,7 @@ GenPatternDlg::GenPatternDlg(QWidget *parent):QDialog(parent)
     setWindowTitle(tr("Generate Colour Pattern"));
     QLabel *lblPattern=new QLabel(tr("Pattern"));
     cbPattern=new QComboBox();
-    cbPattern->addItems(QStringList()<<"A"<<"B"<<"AB"<<"BA"<<"ABBA"<<"BAAB");
+    cbPattern->addItems(QStringList()<<"A"<<"B"<<"AB"<<"BA"<<"ABBA"<<"BAAB"<<"ABCD");
     cbPattern->setEditable(true);
 
     QGridLayout *layGrid=new QGridLayout(this);
@@ -14,21 +14,35 @@ GenPatternDlg::GenPatternDlg(QWidget *parent):QDialog(parent)
 
     QLabel *lblA=new QLabel(tr("Colour A"));
     QLabel *lblB=new QLabel(tr("Colour B"));
+    QLabel *lblC=new QLabel(tr("Colour C"));
+    QLabel *lblD=new QLabel(tr("Colour D"));
 
     layGrid->addWidget(lblA,1,0);
     layGrid->addWidget(lblB,1,1);
+    layGrid->addWidget(lblC,1,2);
+    layGrid->addWidget(lblD,1,3);
 
-    QToolButton *tbA=new QToolButton();
+    auto *tbA=new QToolButton();
     tbA->setProperty("nr",0);
     tbA->setObjectName("0");
-    QToolButton *tbB=new QToolButton();
+    auto *tbB=new QToolButton();
     tbB->setProperty("nr",1);
     tbB->setObjectName("1");
+    auto *tbC=new QToolButton();
+    tbC->setProperty("nr",2);
+    tbC->setObjectName("2");
+    auto *tbD=new QToolButton();
+    tbD->setProperty("nr",3);
+    tbD->setObjectName("3");
     connect(tbA,SIGNAL(clicked()),this,SLOT(chooseColor()));
     connect(tbB,SIGNAL(clicked()),this,SLOT(chooseColor()));
+    connect(tbC,SIGNAL(clicked()),this,SLOT(chooseColor()));
+    connect(tbD,SIGNAL(clicked()),this,SLOT(chooseColor()));
 
     layGrid->addWidget(tbA,2,0);
     layGrid->addWidget(tbB,2,1);
+    layGrid->addWidget(tbC,2,2);
+    layGrid->addWidget(tbD,2,3);
 
     QPushButton *pbShafts=new QPushButton(tr("Pattern shaft colours"));
     QPushButton *pbLines=new QPushButton(tr("Pattern line colours"));
@@ -39,13 +53,13 @@ GenPatternDlg::GenPatternDlg(QWidget *parent):QDialog(parent)
     layGrid->addWidget(pbLines,3,1);
 
     // initialize ColorList
-    setColours(Qt::white,Qt::black);
+    setColours(Qt::white,Qt::black,Qt::red,Qt::blue);
 }
 
-void GenPatternDlg::setColours(QColor A, QColor B)
+void GenPatternDlg::setColours(QColor A, QColor B, QColor C, QColor D)
 {
     lstColors.clear();
-    lstColors<<A<<B;
+    lstColors<<A<<B<<C<<D;
     for(int j=0;j<lstColors.length();j++){
         QPixmap px(20, 20);
         px.fill(lstColors.at(j));
