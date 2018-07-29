@@ -69,11 +69,10 @@ void MainWindow::setupMenu()
     menu->addAction(tr("Generate colour &pattern"),this,SLOT(generateColourPattern()));
     menu->addAction(tr("M&odify pattern"),this,SLOT(modifySelected()));
     menu->addAction(tr("&Duplicate pattern"),this,SLOT(duplicatePattern()));
-    menu->addSeparator();
-    menu->addAction(tr("&Analyze pattern"),wv,SLOT(analyzePattern()));
     menu=menuBar()->addMenu(tr("&View"));
     auto *act=menu->addAction(tr("View from &bottom"),this,SLOT(selectView(bool)));
     act->setCheckable(true);
+    menu->addAction(tr("&Analyze pattern"),wv,SLOT(analyzePattern()));
     menu=menuBar()->addMenu(tr("&Options"));
     menu->addAction(tr("&Config"),this,SLOT(config()));
     menu->addAction(tr("&Reset Colours"),this,SLOT(resetColour()));

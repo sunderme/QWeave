@@ -1222,7 +1222,7 @@ void Weave::mouseReleaseEvent(QMouseEvent *event)
     QPoint delta=event->pos()-mousePressPoint;
     if(delta.manhattanLength()<=1)
         clicked();
-    mousePressPoint.setX(-1);
+    //mousePressPoint.setX(-1);
 }
 
 void Weave::mouseMoveEvent(QMouseEvent *event)
