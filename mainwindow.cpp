@@ -69,8 +69,13 @@ void MainWindow::setupMenu()
     menu->addAction(tr("Generate colour &pattern"),this,SLOT(generateColourPattern()));
     menu->addAction(tr("M&odify pattern"),this,SLOT(modifySelected()));
     menu->addAction(tr("&Duplicate pattern"),this,SLOT(duplicatePattern()));
+    menu->addSeparator();
+    QAction *act=menu->addAction(tr("set cursor &a"),wv,SLOT(setCursor()),QKeySequence(Qt::Key_A));
+    act->setData(0);
+    act=menu->addAction(tr("set cursor &b"),wv,SLOT(setCursor()),QKeySequence(Qt::Key_B));
+    act->setData(1);
     menu=menuBar()->addMenu(tr("&View"));
-    auto *act=menu->addAction(tr("View from &bottom"),this,SLOT(selectView(bool)));
+    act=menu->addAction(tr("View from &bottom"),this,SLOT(selectView(bool)));
     act->setCheckable(true);
     menu->addAction(tr("&Analyze pattern"),wv,SLOT(analyzePattern()));
     menu=menuBar()->addMenu(tr("&Options"));

@@ -26,6 +26,7 @@
 #include <QToolButton>
 #include <QDate>
 #include <QPixmapCache>
+#include <QAction>
 
 //#include <valgrind/callgrind.h>
 
@@ -995,8 +996,10 @@ void Weave::resizeWeave(int newLines, int newCols, int newShafts, int newPos)
 
 
 void Weave::mousePressEvent(QMouseEvent *event){
-    mouseMovePoint.setX(-1);
-    mouseMovePoint.setY(-1);
+    if(mode<op_selA){
+        mouseMovePoint.setX(-1);
+        mouseMovePoint.setY(-1);
+    }
     if (event->button() == Qt::LeftButton) {
         if(mode==op_copy || mode==op_move){
             panePos pos0;
@@ -1013,7 +1016,15 @@ void Weave::mousePressEvent(QMouseEvent *event){
             mode=op_none;
             return;
         }
-        mousePressPoint=event->pos();
+        if(mode==op_selB){
+            mouseMovePoint=event->pos();
+            update();
+        }else{
+            mousePressPoint=event->pos();
+            if(mode==op_selA){
+                update();
+            }
+        }
     }
 }
 
@@ -1219,6 +1230,7 @@ void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy,bool newOrignL
 
 void Weave::mouseReleaseEvent(QMouseEvent *event)
 {
+    if(mode>=op_selA) return;
     QPoint delta=event->pos()-mousePressPoint;
     if(delta.manhattanLength()<=1)
         clicked();
@@ -1582,4 +1594,25 @@ void Weave::paintEvent(QPaintEvent *)
     painter.begin(this);
     paint(painter);
     painter.end();
+}
+
+void Weave::setCursor(){
+    QAction *act=qobject_cast<QAction *>(sender());
+    operationMode newMode=op_none;
+    if(act!=nullptr){
+        int i=act->data().toInt();
+        switch (i) {
+        case 0: newMode=op_selA;
+        break;
+        case 1: newMode=op_selB;
+        break;
+        default: ;
+        }
+        if(newMode!=mode){
+            mode=newMode;
+        }else{
+            mode=op_none;
+        }
+    }
+
 }

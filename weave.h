@@ -109,6 +109,8 @@ public slots:
         m_showInverted=invert;
     }
 
+    void setCursor();
+
 protected:
     enum panePos {pos_none,pos_shaft,pos_translate,pos_position,pos_lines,pos_lineColors,pos_colColors};
     void paintEvent(QPaintEvent *event);
@@ -130,7 +132,7 @@ protected:
 
     QPoint mousePressPoint,mouseMovePoint;
 
-    enum operationMode {op_none,op_copy,op_move};
+    enum operationMode {op_none,op_copy,op_move,op_selA,op_selB};
     operationMode mode;
 
     panePos pos,pos1;
@@ -141,6 +143,7 @@ protected:
     bool m_showInverted;
 
     QUndoStack m_undoStack;
+
 };
 
 #endif // WEAVE_H
