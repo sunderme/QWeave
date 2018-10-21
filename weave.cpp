@@ -371,17 +371,6 @@ void Weave::readWIF(const QString &fileName){
     QTextStream in(&loadFile);
     bool isWIF=false;
     //bool inText=false;
-    bool inWeaving=false;
-    bool inColorTable=false;
-    bool inColorPalette=false;
-    bool inWarp=false;
-    bool inWeft=false;
-    bool inTieUp=false;
-    bool inThreading=false;
-    bool inTreadling=false;
-    bool inWarpColors=false;
-    bool inWeftColors=false;
-
 
     int newNrLines=0;
     int newNrCols=0;
@@ -415,20 +404,18 @@ void Weave::readWIF(const QString &fileName){
     QStringList keyWords;
     keyWords<<"[COLOR PALETTE]"<<"[WEAVING]"<<"[COLOR TABLE]"<<"[WEFT]"<<"[WARP]"<<"[TIEUP]"<<"[THREADING]"<<"[TREADLING]"<<"[WARP COLORS]"<<"[WEFT COLORS]";
 
-    int nr;
-
     foreach(QString key,keyWords){
-        inWarp=false;
-        inWeft=false;
-        inTieUp=false;
-        inThreading=false;
-        inTreadling=false;
-        inWarpColors=false;
-        inWeftColors=false;
-        inWeaving=false;
-        inColorTable=false;
-        inColorPalette=false;
-        nr=-1;
+        bool inWarp=false;
+        bool inWeft=false;
+        bool inTieUp=false;
+        bool inThreading=false;
+        bool inTreadling=false;
+        bool inWarpColors=false;
+        bool inWeftColors=false;
+        bool inWeaving=false;
+        bool inColorTable=false;
+        bool inColorPalette=false;
+        int nr=-1;
         if(key=="[WEAVING]"){
             inWeaving=true;
         }
@@ -1389,7 +1376,6 @@ void Weave::paint(QPainter &paint,int useScale)
         }
     }
     //
-    QPixmapCache pmCache;
     for(int y=0;y<nrLines;y++){
         QBitArray line;
         line=lines.at(y);
@@ -1398,9 +1384,6 @@ void Weave::paint(QPainter &paint,int useScale)
         paint.setBrush(lineColors.at(y));
         paint.setPen(Qt::SolidLine);
         paint.drawRect(0,(nrShafts+yDist+y+yOff)*useScale,nrCols*useScale,useScale);
-        //paint.setPen(Qt::SolidLine);
-        //paint.drawLine(0,(nrShafts+yDist+y+yOff)*useScale,nrCols*useScale,(nrShafts+yDist+y+yOff)*useScale);
-        //paint.drawLine(0,(nrShafts+yDist+y+1+yOff)*useScale,nrCols*useScale,(nrShafts+yDist+y+1+yOff)*useScale);
         // draw up
         QPixmap cached(useScale+1,useScale+1);
         for (int x = 0; x < nrCols; ++x) {
