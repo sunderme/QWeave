@@ -63,7 +63,7 @@ void GenPatternDlg::setColours(QColor A, QColor B, QColor C, QColor D)
     for(int j=0;j<lstColors.length();j++){
         QPixmap px(20, 20);
         px.fill(lstColors.at(j));
-        QToolButton *tb=findChild<QToolButton*>(QString("%1").arg(j));
+        auto *tb=findChild<QToolButton*>(QString("%1").arg(j));
         if(tb){
             tb->setIcon(px);
         }
@@ -100,7 +100,7 @@ void GenPatternDlg::selLines()
 
 void GenPatternDlg::chooseColor()
 {
-    QToolButton *tb=qobject_cast<QToolButton*>(sender());
+    auto *tb=qobject_cast<QToolButton*>(sender());
     if(!tb)
         return;
     int p=tb->property("nr").toInt();

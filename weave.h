@@ -73,12 +73,12 @@ public:
     void resizeWeave(int newLines, int newCols, int newShafts, int newPos);
     void generateWeave();
     void generatePattern();
-    void save(QString fileName);
-    void open(QString fileName);
-    void readJson(QString fileName);
+    void save(const QString &fileName);
+    void open(const QString &fileName);
+    void readJson(const QString &fileName);
     void readWIF(const QString &fileName);
-    void writeJson(QString fileName);
-    void writeWIF(QString fileName);
+    void writeJson(const QString &fileName);
+    void writeWIF(const QString &fileName);
 
     QSize sizeHint() const;
 

@@ -126,7 +126,7 @@ void Weave::generatePattern()
 
 }
 
-void Weave::save(QString fileName){
+void Weave::save(const QString &fileName){
     if(fileName.endsWith(".weave")){
         writeJson(fileName);
     }else{
@@ -134,7 +134,7 @@ void Weave::save(QString fileName){
     }
 }
 
-void Weave::writeJson(QString fileName)
+void Weave::writeJson(const QString &fileName)
 {
     QFile saveFile(fileName);
     if (!saveFile.open(QIODevice::WriteOnly)) {
@@ -176,7 +176,7 @@ void Weave::writeJson(QString fileName)
     saveFile.write(jsDoc.toJson());
 }
 
-void Weave::writeWIF(QString fileName)
+void Weave::writeWIF(const QString &fileName)
 {
     QFile saveFile(fileName);
     if (!saveFile.open(QIODevice::WriteOnly)) {
@@ -192,14 +192,12 @@ void Weave::writeWIF(QString fileName)
     out<<"Rising Shed=yes\n"<<"Profile=no\n";
     // color palette
     QList<QColor> lstColors;
-    for(int i=0;i<colColors.length();i++){
-        QColor clr=colColors.at(i);
+    for(auto clr : colColors){
         if(!lstColors.contains(clr)){
             lstColors<<clr;
         }
     }
-    for(int i=0;i<lineColors.length();i++){
-        QColor clr=lineColors.at(i);
+    for(auto clr : lineColors){
         if(!lstColors.contains(clr)){
             lstColors<<clr;
         }
@@ -282,7 +280,7 @@ void Weave::writeWIF(QString fileName)
     }
 }
 
-void Weave::open(QString fileName)
+void Weave::open(const QString &fileName)
 {
     m_undoStack.clear();
 
@@ -293,7 +291,7 @@ void Weave::open(QString fileName)
     }
 }
 
-void Weave::readJson(QString fileName){
+void Weave::readJson(const QString &fileName){
     QFile loadFile(fileName);
 
     if (!loadFile.open(QIODevice::ReadOnly)) {
@@ -1218,10 +1216,10 @@ void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy,bool newOrignL
     for(int i=0;i<field.size();i++){
         if(x+i<0 || x+i>=target->size())
             continue;
-        ChangeArray *cp=new ChangeArray(target,x+i,field.at(i));
+        auto *cp=new ChangeArray(target,x+i,field.at(i));
         m_undoStack.push(cp);
         if(target2){
-            ChangeColorArray *ccp=new ChangeColorArray(target2,x+i,field2.at(i));
+            auto *ccp=new ChangeColorArray(target2,x+i,field2.at(i));
             m_undoStack.push(ccp);
         }
         //(*target)[x+i]=field.at(i);
@@ -1550,7 +1548,7 @@ void Weave::duplicatePattern(int shift,int times)
     }
     for(int i=0;i<zw.size()/(times+1);i++){
         QBitArray ba=zw.at(start+i*delta);
-        ChangeArray *cp=new ChangeArray(target,start+(times+1)*i*delta,ba);
+        auto *cp=new ChangeArray(target,start+(times+1)*i*delta,ba);
         m_undoStack.push(cp);
         for(int k=0;k<times;k++){
             ba=shiftBitArray(ba,shift);
@@ -1582,7 +1580,7 @@ void Weave::generateColourPattern(QList<QColor> colors, QList<int> pattern, int 
         if(j<0)
             j=0;
         //lineColors[k]=colors.at(j);
-        ChangeColorArray *ccp=new ChangeColorArray(target,k,colors.at(j));
+        auto *ccp=new ChangeColorArray(target,k,colors.at(j));
         m_undoStack.push(ccp);
     }
 
@@ -1600,7 +1598,7 @@ void Weave::paintEvent(QPaintEvent *)
 }
 
 void Weave::setCursor(){
-    QAction *act=qobject_cast<QAction *>(sender());
+    auto *act=qobject_cast<QAction *>(sender());
     operationMode newMode=op_none;
     if(act!=nullptr){
         int i=act->data().toInt();
