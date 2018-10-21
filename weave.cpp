@@ -192,12 +192,12 @@ void Weave::writeWIF(const QString &fileName)
     out<<"Rising Shed=yes\n"<<"Profile=no\n";
     // color palette
     QList<QColor> lstColors;
-    for(auto clr : colColors){
+    for(const auto& clr : colColors){
         if(!lstColors.contains(clr)){
             lstColors<<clr;
         }
     }
-    for(auto clr : lineColors){
+    for(const auto& clr : lineColors){
         if(!lstColors.contains(clr)){
             lstColors<<clr;
         }
@@ -206,7 +206,7 @@ void Weave::writeWIF(const QString &fileName)
     out<<"[COLOR TABLE]\n";
     for(int i=0;i<lstColors.length();i++){
         out<<QString("%1=").arg(i+1);
-        QColor clr=lstColors.at(i);
+        const QColor& clr=lstColors.at(i);
         out<<QString("%1,%2,%3\n").arg(clr.red()).arg(clr.green()).arg(clr.blue());
     }
     out<<"[WARP]\n"<<QString("Threads=%1\n").arg(nrCols);
@@ -1282,7 +1282,7 @@ void Weave::wheelEvent(QWheelEvent *event)
     }
 }
 
-QString Weave::bitToString(QBitArray bits)
+QString Weave::bitToString(const QBitArray& bits)
 {
     // lsb left
     QString result;
@@ -1292,7 +1292,7 @@ QString Weave::bitToString(QBitArray bits)
     return result;
 }
 
-QBitArray Weave::stringToBit(QString txt)
+QBitArray Weave::stringToBit(const QString& txt)
 {
     // lsb left
     QBitArray bit(txt.size());
@@ -1327,7 +1327,7 @@ QBitArray Weave::shiftBitArray(QBitArray ba,int shift)
     return ba;
 }
 
-bitField Weave::transpose(bitField in)
+bitField Weave::transpose(const bitField& in)
 {
     // intended for readWIF translation (tieup)
     // read in bitvector in y
@@ -1561,7 +1561,7 @@ void Weave::duplicatePattern(int shift,int times)
     update();
 }
 
-void Weave::generateColourPattern(QList<QColor> colors, QList<int> pattern, int side)
+void Weave::generateColourPattern(const QList<QColor>& colors, const QList<int>& pattern, int side)
 {
     m_undoStack.beginMacro("Pattern");
     int period=pattern.length();

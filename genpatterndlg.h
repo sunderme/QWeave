@@ -26,7 +26,7 @@ Q_OBJECT
 
 public:
     GenPatternDlg(QWidget *parent);
-    void setColours(QColor A, QColor B, QColor C, QColor D);
+    void setColours(const QColor& A, const QColor& B, const QColor& C, const QColor& D);
     QList<QColor> getColours();
     QList<int> getPattern();
 

@@ -56,7 +56,7 @@ GenPatternDlg::GenPatternDlg(QWidget *parent):QDialog(parent)
     setColours(Qt::white,Qt::black,Qt::red,Qt::blue);
 }
 
-void GenPatternDlg::setColours(QColor A, QColor B, QColor C, QColor D)
+void GenPatternDlg::setColours(const QColor& A, const QColor& B, const QColor& C, const QColor& D)
 {
     lstColors.clear();
     lstColors<<A<<B<<C<<D;
@@ -79,8 +79,8 @@ QList<int> GenPatternDlg::getPattern()
 {
     QList<int> result;
     QString text=cbPattern->currentText();
-    for(int k=0;k<text.length();k++){
-        int d=text.at(k).toUpper().toLatin1()-QChar('A').toLatin1();
+    for(auto ch : text){
+        int d=ch.toUpper().toLatin1()-QChar('A').toLatin1();
         if(d>=0 && d<lstColors.length()){
             result<<d;
         }

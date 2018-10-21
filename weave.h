@@ -62,11 +62,11 @@ public:
     void init();
     bitField lines,translation,shafts,positions;
     QVector<QColor> colColors,lineColors;
-    int nrLines,nrCols;
-    int scale,offset;
-    int nrShafts,nrPositions;
-    int xDist,yDist;
-    bool exclusiveShaft,exclusiveLines;
+    int nrLines{},nrCols{};
+    int scale{},offset{};
+    int nrShafts{},nrPositions{};
+    int xDist{},yDist{};
+    bool exclusiveShaft{},exclusiveLines{};
 
     QColor clrUp,clrDown;
 
@@ -103,7 +103,7 @@ public slots:
     void undo();
     void redo();
 
-    void generateColourPattern(QList<QColor> colors,QList<int> pattern,int side);
+    void generateColourPattern(const QList<QColor>& colors,const QList<int>& pattern,int side);
 
     void setInvertPattern(bool invert=false){
         m_showInverted=invert;
@@ -124,11 +124,11 @@ protected:
 
     void performCopy(int x, int y, bool clearSel=false, bool crossCopy=false, bool newOrignLeft=false);
 
-    QString bitToString(QBitArray bits);
-    QBitArray stringToBit(QString txt);
+    QString bitToString(const QBitArray& bits);
+    QBitArray stringToBit(const QString& txt);
 
     QBitArray shiftBitArray(QBitArray ba,int shift);
-    bitField transpose(bitField in);
+    bitField transpose(const bitField& in);
 
     QPoint mousePressPoint,mouseMovePoint;
 
@@ -136,11 +136,11 @@ protected:
     operationMode mode;
 
     panePos pos,pos1;
-    int origin_x0,origin_x1;
+    int origin_x0{},origin_x1{};
 
-    int yOff;
+    int yOff{};
 
-    bool m_showInverted;
+    bool m_showInverted{};
 
     QUndoStack m_undoStack;
 

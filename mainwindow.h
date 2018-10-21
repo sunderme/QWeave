@@ -58,9 +58,9 @@ private:
     GenPatternDlg *dlgPattern;
     Modifydlg *dlgModify;
 
-    QAction *mUndoAction,*mRedoAction;
+    QAction *mUndoAction{},*mRedoAction{};
 
-    QMenu *recentMenu;
+    QMenu *recentMenu{};
 
     QStringList recentFilesList;
 };
