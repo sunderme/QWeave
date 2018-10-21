@@ -36,7 +36,7 @@ public:
     void setShafts(int shafts);
     int getPositions();
     void setPositions(int positions);
-    void setColors(QColor up,QColor down);
+    void setColors(const QColor &up, const QColor &down);
     void getColors(QColor &up,QColor &down);
     void setMultiShaft(bool multiShaft);
     bool getMultiShaft();

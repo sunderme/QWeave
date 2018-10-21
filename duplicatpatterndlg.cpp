@@ -11,7 +11,7 @@ DuplicatPatternDlg::DuplicatPatternDlg(QWidget *parent) : QDialog(parent)
     sp2=new QSpinBox();
     sp2->setMaximum(20);
     sp2->setMinimum(1);
-    QGridLayout *hl=new QGridLayout(this);
+    auto *hl=new QGridLayout(this);
     hl->addWidget(lbl,0,0);
     hl->addWidget(sp,0,1);
     hl->addWidget(lbl2,1,0);

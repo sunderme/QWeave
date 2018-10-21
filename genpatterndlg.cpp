@@ -8,7 +8,7 @@ GenPatternDlg::GenPatternDlg(QWidget *parent):QDialog(parent)
     cbPattern->addItems(QStringList()<<"A"<<"B"<<"AB"<<"BA"<<"ABBA"<<"BAAB"<<"ABCD");
     cbPattern->setEditable(true);
 
-    QGridLayout *layGrid=new QGridLayout(this);
+    auto *layGrid=new QGridLayout(this);
     layGrid->addWidget(lblPattern,0,0);
     layGrid->addWidget(cbPattern,0,1);
 

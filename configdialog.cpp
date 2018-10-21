@@ -15,6 +15,7 @@
     */
 
 #include <QtWidgets>
+#include <utility>
 
 #include "configdialog.h"
 
@@ -26,45 +27,45 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     sbCols->setMaximum(1000);
     lblCols->setBuddy(sbCols);
 
-    QLabel *lblLines=new QLabel(("Lines"));
+    QLabel *lblLines=new QLabel(tr("Lines"));
     sbLines=new QSpinBox();
     sbLines->setMinimum(2);
     sbLines->setMaximum(1000);
     lblLines->setBuddy(sbLines);
 
-    QLabel *lblShafts=new QLabel(("Shafts"));
+    QLabel *lblShafts=new QLabel(tr("Shafts"));
     sbShafts=new QSpinBox();
     sbShafts->setMinimum(2);
     sbShafts->setMaximum(100);
     lblShafts->setBuddy(sbShafts);
 
-    QLabel *lblPositions=new QLabel(("Positions"));
+    QLabel *lblPositions=new QLabel(tr("Positions"));
     sbPositions=new QSpinBox();
     sbPositions->setMinimum(2);
     sbPositions->setMaximum(100);
     lblPositions->setBuddy(sbPositions);
 
-    QPushButton *btUp=new QPushButton("up");
-    QPushButton *btDown=new QPushButton("down");
+    QPushButton *btUp=new QPushButton(tr("up"));
+    QPushButton *btDown=new QPushButton(tr("down"));
 
     connect(btUp,SIGNAL(clicked()),this,SLOT(chooseColorUp()));
     connect(btDown,SIGNAL(clicked()),this,SLOT(chooseColorDown()));
 
     cbMultiShafts=new QCheckBox();
     cbMultiShafts->setChecked(false);
-    cbMultiShafts->setText("exclusive shafts");
+    cbMultiShafts->setText(tr("exclusive shafts"));
 
     cbMultiLines=new QCheckBox();
     cbMultiLines->setChecked(false);
     cbMultiLines->setText("exclusive lines");
 
-    QPushButton *btOK=new QPushButton(("OK"));
-    QPushButton *btCancel=new QPushButton(("Cancel"));
+    QPushButton *btOK=new QPushButton(tr("OK"));
+    QPushButton *btCancel=new QPushButton(tr("Cancel"));
 
     connect(btOK,SIGNAL(clicked(bool)),this,SLOT(accept()));
     connect(btCancel,SIGNAL(clicked(bool)),this,SLOT(reject()));
 
-    QGridLayout *layGrid=new QGridLayout;
+    auto *layGrid=new QGridLayout;
     layGrid->addWidget(lblCols,0,0,1,1);
     layGrid->addWidget(sbCols,0,1,1,1);
     layGrid->addWidget(lblLines,1,0,1,1);
@@ -78,12 +79,12 @@ configDialog::configDialog(QWidget *parent):QDialog(parent)
     layGrid->addWidget(cbMultiShafts,5,0,1,1);
     layGrid->addWidget(cbMultiLines,6,0,1,1);
 
-    QHBoxLayout *hlayout= new QHBoxLayout;
+    auto *hlayout= new QHBoxLayout;
     hlayout->addStretch();
     hlayout->addWidget(btOK);
     hlayout->addWidget(btCancel);
 
-    QVBoxLayout *vlayout= new QVBoxLayout;
+    auto *vlayout= new QVBoxLayout;
     vlayout->addLayout(layGrid);
     vlayout->addStretch();
     vlayout->addLayout(hlayout);
@@ -131,7 +132,7 @@ void configDialog::setPositions(int positions)
     sbPositions->setValue(positions);
 }
 
-void configDialog::setColors(QColor up, QColor down)
+void configDialog::setColors(const QColor &up,const QColor &down)
 {
     m_up=up;
     m_down=down;

@@ -363,7 +363,7 @@ void Weave::readJson(QString fileName){
     generateWeave();
 }
 
-void Weave::readWIF(QString fileName){
+void Weave::readWIF(const QString &fileName){
     QFile loadFile(fileName);
 
     if (!loadFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -464,10 +464,10 @@ void Weave::readWIF(QString fileName){
         foreach(QString line,doc[key]){
             if(inWeaving){
                 if(line.startsWith("Shafts=")){
-                    newNrShafts=line.mid(7).toInt();
+                    newNrShafts=line.midRef(7).toInt();
                 }
                 if(line.startsWith("Treadles=")){
-                    newNrPositions=line.mid(9).toInt();
+                    newNrPositions=line.midRef(9).toInt();
                 }
             }
             if(inColorTable){
@@ -511,7 +511,7 @@ void Weave::readWIF(QString fileName){
             }
             if(inWarp){
                 if(line.startsWith("Threads=")){
-                    newNrCols=line.mid(8).toInt();
+                    newNrCols=line.midRef(8).toInt();
                 }
                 if(line.startsWith("Color=")){
                     QString rest=line.mid(6);
@@ -536,7 +536,7 @@ void Weave::readWIF(QString fileName){
             }
             if(inWeft){
                 if(line.startsWith("Threads=")){
-                    newNrLines=line.mid(8).toInt();
+                    newNrLines=line.midRef(8).toInt();
                 }
                 if(line.startsWith("Color=")){
                     QString rest=line.mid(6);
@@ -712,7 +712,7 @@ void Weave::clear()
         m_undoStack.beginMacro("clear");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
             QBitArray line(nrPositions);
-            ChangeArray *cp=new ChangeArray(&positions,i,line);
+            auto *cp=new ChangeArray(&positions,i,line);
             m_undoStack.push(cp);
             //positions[i].fill(false);
         }
@@ -722,7 +722,7 @@ void Weave::clear()
         m_undoStack.beginMacro("clear");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
             QBitArray line(nrShafts);
-            ChangeArray *cp=new ChangeArray(&shafts,i,line);
+            auto *cp=new ChangeArray(&shafts,i,line);
             m_undoStack.push(cp);
             //shafts[i].fill(false);
         }
@@ -731,7 +731,7 @@ void Weave::clear()
     if(pos==pos_colColors || pos1==pos_colColors){
         m_undoStack.beginMacro("clear");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
-            ChangeColorArray *ccp=new ChangeColorArray(&colColors,i,clrUp);
+            auto *ccp=new ChangeColorArray(&colColors,i,clrUp);
             m_undoStack.push(ccp);
             //shafts[i].fill(false);
         }
@@ -740,7 +740,7 @@ void Weave::clear()
     if(pos==pos_lineColors || pos1==pos_lineColors){
         m_undoStack.beginMacro("clear");
         for(int i=qMin(origin_x0,origin_x1);i<=qMax(origin_x0,origin_x1);i++){
-            ChangeColorArray *ccp=new ChangeColorArray(&lineColors,i,clrDown);
+            auto *ccp=new ChangeColorArray(&lineColors,i,clrDown);
             m_undoStack.push(ccp);
             //shafts[i].fill(false);
         }
@@ -761,7 +761,7 @@ void Weave::mirror_x()
             for(int k=0;k<nrPositions;k++){
                 line2.setBit(k,line.at(nrPositions-k-1));
             }
-            ChangeArray *cp=new ChangeArray(&positions,i,line2);
+            auto *cp=new ChangeArray(&positions,i,line2);
             m_undoStack.push(cp);
         }
         m_undoStack.endMacro();
@@ -774,10 +774,10 @@ void Weave::mirror_x()
         bitField field=shafts.mid(start,l);
         QVector<QColor> field2=colColors.mid(start,l);
         for(int j=0;j<l;j++){
-            ChangeArray *cp=new ChangeArray(&shafts,j+start,field.at(l-j-1));
+            auto *cp=new ChangeArray(&shafts,j+start,field.at(l-j-1));
             m_undoStack.push(cp);
             if(doColors){
-                ChangeColorArray *ccp=new ChangeColorArray(&colColors,j+start,field2.at(l-j-1));
+                auto *ccp=new ChangeColorArray(&colColors,j+start,field2.at(l-j-1));
                 m_undoStack.push(ccp);
             }
         }
@@ -797,10 +797,10 @@ void Weave::mirror_y()
         bitField field=positions.mid(start,l);
         QVector<QColor> field2=lineColors.mid(start,l);
         for(int j=0;j<l;j++){
-            ChangeArray *cp=new ChangeArray(&positions,j+start,field.at(l-j-1));
+            auto *cp=new ChangeArray(&positions,j+start,field.at(l-j-1));
             m_undoStack.push(cp);
             if(doColors){
-                ChangeColorArray *ccp=new ChangeColorArray(&lineColors,j+start,field2.at(l-j-1));
+                auto *ccp=new ChangeColorArray(&lineColors,j+start,field2.at(l-j-1));
                 m_undoStack.push(ccp);
             }
         }
@@ -814,7 +814,7 @@ void Weave::mirror_y()
             for(int k=0;k<nrShafts;k++){
                 line2.setBit(k,line.at(nrShafts-k-1));
             }
-            ChangeArray *cp=new ChangeArray(&shafts,i,line2);
+            auto *cp=new ChangeArray(&shafts,i,line2);
             m_undoStack.push(cp);
         }
         m_undoStack.endMacro();
@@ -898,7 +898,7 @@ void Weave::modifySelected(int direction)
                 }
             }
         }
-        ChangeArray *cp=new ChangeArray(target,x,ba);
+        auto *cp=new ChangeArray(target,x,ba);
         m_undoStack.push(cp);
     }
     m_undoStack.endMacro();
@@ -1006,10 +1006,10 @@ void Weave::mousePressEvent(QMouseEvent *event){
             int x,y;
             determinePos(event->pos(),pos0,x,y);
             if(pos==pos0){
-                performCopy(x,y,mode==op_move,false,(pos==pos_position)||(pos==pos_lineColors));
+                performCopy(x,y,mode==op_move,false,(pos==pos_position)||(pos==pos_lineColors)||(pos==pos_shaft)||(pos==pos_colColors));
             }else{
                 if((pos==pos_position||pos==pos_shaft)&&(pos0==pos_position||pos0==pos_shaft)&&(nrPositions==nrShafts)){
-                    performCopy(x,y,mode==op_move,true,pos0==pos_position);
+                    performCopy(x,y,mode==op_move,true,(pos==pos_position)||(pos==pos_shaft));
                 }
             }
 
@@ -1038,6 +1038,7 @@ void Weave::clicked(){
         if(y==-yOff && x<nrCols){
             // change color
             QColorDialog dlg;
+            x=nrCols-x-1;
             dlg.setCurrentColor(colColors.at(x));
             if(dlg.exec()){
                 ChangeColorArray *ccp=new ChangeColorArray(&colColors,x,dlg.currentColor());
@@ -1068,27 +1069,28 @@ void Weave::clicked(){
                         //positions[yn].setBit(x,true);
                         QBitArray newLine(nrPositions);
                         newLine.setBit(x,true);
-                        ChangeArray *cp=new ChangeArray(&positions,yn,newLine);
+                        auto *cp=new ChangeArray(&positions,yn,newLine);
                         m_undoStack.push(cp);
                     }
                 }else{
                     QBitArray newLine(nrPositions);
                     newLine=positions[yn];
                     newLine.toggleBit(x);
-                    ChangeArray *cp=new ChangeArray(&positions,yn,newLine);
+                    auto *cp=new ChangeArray(&positions,yn,newLine);
                     m_undoStack.push(cp);
                 }
             }else{
                 if(x<0){
                     x=x+nrCols+xDist;
                     if( y>=0 && x<nrCols && y<nrShafts){
+                        x=nrCols-x-1;
                         if(exclusiveShaft){
                             if(!shafts[x].at(nrShafts-y-1)){
                                 //shafts[x].fill(false);
                                 //shafts[x].setBit(nrShafts-y-1,true);
                                 QBitArray newLine(nrShafts);
                                 newLine.setBit(nrShafts-y-1,true);
-                                ChangeArray *cp=new ChangeArray(&shafts,x,newLine);
+                                auto *cp=new ChangeArray(&shafts,x,newLine);
                                 m_undoStack.push(cp);
                             }
                         }else{
@@ -1096,7 +1098,7 @@ void Weave::clicked(){
                             QBitArray newLine(nrShafts);
                             newLine=shafts[x];
                             newLine.toggleBit(nrShafts-y-1);
-                            ChangeArray *cp=new ChangeArray(&shafts,x,newLine);
+                            auto *cp=new ChangeArray(&shafts,x,newLine);
                             m_undoStack.push(cp);
                         }
                     }
@@ -1106,7 +1108,7 @@ void Weave::clicked(){
                         QBitArray newLine(nrPositions);
                         newLine=translation[nrShafts-y-1];
                         newLine.toggleBit(x);
-                        ChangeArray *cp=new ChangeArray(&translation,nrShafts-y-1,newLine);
+                        auto *cp=new ChangeArray(&translation,nrShafts-y-1,newLine);
                         m_undoStack.push(cp);
                     }
                 }
@@ -1127,6 +1129,7 @@ void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
         y/=scale;
         if( x<nrCols && y==0){
             pos=pos_colColors;
+            x=nrCols-x-1;
             return;
         }
         y-=yOff;
@@ -1136,32 +1139,32 @@ void Weave::determinePos(QPoint p, Weave::panePos &pos, int &x, int &y)
                 pos=pos_lines;
             return;
             //lines[y].toggleBit(x);
-        }else{
-            x=x-nrCols-xDist;
-            int yn=y-nrShafts-yDist;
-            if( x==nrPositions+1 && yn>=0 && yn<nrLines){
-                pos=pos_lineColors;
-                y=yn;
+        }
+
+        x=x-nrCols-xDist;
+        int yn=y-nrShafts-yDist;
+        if( x==nrPositions+1 && yn>=0 && yn<nrLines){
+            pos=pos_lineColors;
+            y=yn;
+            return;
+        }
+        if( x>=0 && yn>=0 && x<nrPositions && yn<nrLines){
+            y=yn;
+            pos=pos_position;
+            return;
+        }
+        if(x<0){
+            x=x+nrCols+xDist;
+            if( y>=0 && x<nrCols && y<nrShafts){
+                pos=pos_shaft;
+                y=nrShafts-y-1;
+                x=nrCols-x-1;
                 return;
             }
-            if( x>=0 && yn>=0 && x<nrPositions && yn<nrLines){
-                y=yn;
-                pos=pos_position;
+        }else{
+            if( x>=0 && y>=0 && x<nrPositions && y<nrShafts){
+                pos=pos_translate;
                 return;
-            }else{
-                if(x<0){
-                    x=x+nrCols+xDist;
-                    if( y>=0 && x<nrCols && y<nrShafts){
-                        pos=pos_shaft;
-                        y=nrShafts-y-1;
-                        return;
-                    }
-                }else{
-                    if( x>=0 && y>=0 && x<nrPositions && y<nrShafts){
-                        pos=pos_translate;
-                        return;
-                    }
-                }
             }
         }
     }
@@ -1415,7 +1418,7 @@ void Weave::paint(QPainter &paint,int useScale)
                     pt.drawLine(useScale,0,useScale,useScale);
                     pmCache.insert(clr.name(),cached);
                 }
-                paint.drawPixmap(x*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale+1,useScale+1,cached);
+                paint.drawPixmap((nrCols-x-1)*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale+1,useScale+1,cached);
                 //x*useScale,(nrShafts+yDist+y+yOff)*useScale
             }
         }
@@ -1464,7 +1467,7 @@ void Weave::paint(QPainter &paint,int useScale)
             }
         }
         paint.setBrush(colColors.at(x));
-        paint.drawRect(x*useScale,(0)*useScale,useScale,useScale);
+        paint.drawRect((nrCols-x-1)*useScale,(0)*useScale,useScale,useScale);
         if(inSelectMode && (pos==pos_colColors || pos1==pos_colColors)){
             paint.setPen(Qt::darkGray);
         }
@@ -1509,7 +1512,7 @@ void Weave::paint(QPainter &paint,int useScale)
             }else{
                 paint.setBrush(down);
             }
-            paint.drawRect(x*useScale,(nrShafts-y-1+yOff)*useScale,useScale,useScale);
+            paint.drawRect((nrCols-x-1)*useScale,(nrShafts-y-1+yOff)*useScale,useScale,useScale);
         }
         if(inSelectMode && (pos==pos_shaft || pos1==pos_shaft)){
             paint.setPen(Qt::darkGray);

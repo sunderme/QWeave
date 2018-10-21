@@ -34,7 +34,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),dlgPattern(nullptr),dlgModify(nullptr)
 {
-   QScrollArea *sc=new QScrollArea;
+   auto *sc=new QScrollArea;
    wv=new Weave(this);
    sc->setWidget(wv);
    setCentralWidget(sc);
@@ -90,7 +90,7 @@ void MainWindow::updateRecent()
 {
     recentMenu->clear();
     for (int i = 0; i < qMin(9,recentFilesList.size()); i++) {
-        QAction *act = new QAction();
+        auto *act = new QAction();
         act->setVisible(true);
         QString temp = recentFilesList.at(i);
         temp.replace("&", "&&");
@@ -133,7 +133,7 @@ void MainWindow::writeSettings()
 
 void MainWindow::config()
 {
-    configDialog *dlg=new configDialog(this);
+    auto *dlg=new configDialog(this);
     dlg->setLines(wv->nrLines);
     dlg->setCols(wv->nrCols);
     dlg->setShafts(wv->nrShafts);
@@ -185,7 +185,7 @@ void MainWindow::open()
 
 void MainWindow::openRecent()
 {
-    QAction *act=qobject_cast<QAction*>(sender());
+    auto *act=qobject_cast<QAction*>(sender());
     QString fileName=act->data().toString();
     if(!fileName.isEmpty()){
         wv->open(fileName);
@@ -204,7 +204,7 @@ void MainWindow::selectView(bool fromBottom)
 
 void MainWindow::print()
 {
-    QPrinter *printer=new QPrinter(QPrinter::HighResolution);
+    auto *printer=new QPrinter(QPrinter::HighResolution);
     QPrintDialog printDialog(printer, this);
     if (printDialog.exec() == QDialog::Accepted) {
         // print ...
@@ -248,7 +248,7 @@ void MainWindow::modifySelected()
 
 void MainWindow::duplicatePattern()
 {
-    DuplicatPatternDlg *duplicatePatternDlg=new DuplicatPatternDlg(this);
+    auto *duplicatePatternDlg=new DuplicatPatternDlg(this);
     if(duplicatePatternDlg->exec()){
         int shift=duplicatePatternDlg->sp->value();
         int times=duplicatePatternDlg->sp2->value();

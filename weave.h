@@ -76,7 +76,7 @@ public:
     void save(QString fileName);
     void open(QString fileName);
     void readJson(QString fileName);
-    void readWIF(QString fileName);
+    void readWIF(const QString &fileName);
     void writeJson(QString fileName);
     void writeWIF(QString fileName);
 

@@ -6,24 +6,24 @@ Modifydlg::Modifydlg(QWidget *parent) : QDialog(parent)
     connect(btFlipHorz,SIGNAL(clicked()),this,SIGNAL(flipHorz()));
     QPushButton *btFlipVert=new QPushButton(tr("mirror vertical"));
     connect(btFlipVert,SIGNAL(clicked()),this,SIGNAL(flipVert()));
-    QToolButton *tbUp=new QToolButton();
+    auto *tbUp=new QToolButton();
     tbUp->setObjectName("up");
     tbUp->setIcon(QIcon(":/up.svgz"));
     connect(tbUp,SIGNAL(clicked()),this,SLOT(movePressed()));
-    QToolButton *tbDown=new QToolButton();
+    auto *tbDown=new QToolButton();
     tbDown->setObjectName("down");
     tbDown->setIcon(QIcon(":/down.svgz"));
     connect(tbDown,SIGNAL(clicked()),this,SLOT(movePressed()));
-    QToolButton *tbRight=new QToolButton();
+    auto *tbRight=new QToolButton();
     tbRight->setObjectName("right");
     tbRight->setIcon(QIcon(":/right.svgz"));
     connect(tbRight,SIGNAL(clicked()),this,SLOT(movePressed()));
-    QToolButton *tbLeft=new QToolButton();
+    auto *tbLeft=new QToolButton();
     tbLeft->setObjectName("left");
     tbLeft->setIcon(QIcon(":/left.svgz"));
     connect(tbLeft,SIGNAL(clicked()),this,SLOT(movePressed()));
 
-    QGridLayout *layGrid=new QGridLayout(this);
+    auto *layGrid=new QGridLayout(this);
     layGrid->addWidget(btFlipHorz,0,0,1,3);
     layGrid->addWidget(btFlipVert,1,0,1,3);
     layGrid->addWidget(tbUp,2,1);
@@ -35,7 +35,7 @@ Modifydlg::Modifydlg(QWidget *parent) : QDialog(parent)
 
 void Modifydlg::movePressed()
 {
-    QToolButton *tb=qobject_cast<QToolButton*>(sender());
+    auto *tb=qobject_cast<QToolButton*>(sender());
     if(tb){
         // get direction 0 up,1 right, 2 down, 3 left
         int direction=0;
