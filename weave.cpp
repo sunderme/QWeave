@@ -1406,7 +1406,7 @@ void Weave::paint(QPainter &paint,int useScale)
         for (int x = 0; x < nrCols; ++x) {
             if(line.at(x)){
                 QColor clr=colColors.at(x);
-                if(!pmCache.find(clr.name(),&cached)){
+                if(!QPixmapCache::find(clr.name(),&cached)){
                     QPainter pt(&cached);
                     pt.setBrush(clr);
                     pt.setPen(Qt::NoPen);
@@ -1414,7 +1414,7 @@ void Weave::paint(QPainter &paint,int useScale)
                     pt.setPen(Qt::SolidLine);
                     pt.drawLine(0,0,0,useScale);
                     pt.drawLine(useScale,0,useScale,useScale);
-                    pmCache.insert(clr.name(),cached);
+                    QPixmapCache::insert(clr.name(),cached);
                 }
                 paint.drawPixmap((nrCols-x-1)*useScale,(nrShafts+yDist+y+yOff)*useScale,useScale+1,useScale+1,cached);
                 //x*useScale,(nrShafts+yDist+y+yOff)*useScale
