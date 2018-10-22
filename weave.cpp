@@ -993,7 +993,7 @@ void Weave::mousePressEvent(QMouseEvent *event){
             if(pos==pos0){
                 performCopy(x,y,mode==op_move,false,(pos==pos_position)||(pos==pos_lineColors)||(pos==pos_shaft)||(pos==pos_colColors));
             }else{
-                if((pos==pos_position||pos==pos_shaft)&&(pos0==pos_position||pos0==pos_shaft)&&(nrPositions==nrShafts)){
+                if((pos==pos_position||pos==pos_shaft)&&(pos0==pos_position||pos0==pos_shaft)){
                     performCopy(x,y,mode==op_move,true,(pos==pos_position)||(pos==pos_shaft));
                 }
             }
@@ -1200,10 +1200,14 @@ void Weave::performCopy(int x, int y,bool clearSel,bool crossCopy,bool newOrignL
         clear();
     if(!newOrignLeft)
         x=x-l+1;
+
+    int targetSize=target->at(0).size();
     for(int i=0;i<field.size();i++){
         if(x+i<0 || x+i>=target->size())
             continue;
-        auto *cp=new ChangeArray(target,x+i,field.at(i));
+        QBitArray ba=field.at(i);
+        ba.resize(targetSize);
+        auto *cp=new ChangeArray(target,x+i,ba);
         m_undoStack.push(cp);
         if(target2){
             auto *ccp=new ChangeColorArray(target2,x+i,field2.at(i));
