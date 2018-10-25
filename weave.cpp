@@ -1527,12 +1527,9 @@ void Weave::duplicatePattern(int shift,int times)
     }
     m_undoStack.beginMacro("duplicate");
     bitField zw=*target;
-    int start=zw.size()-1;
-    int delta=-1;
-    if(pos==pos_position){
-        start=0;
-        delta=1;
-    }
+    int start=0;
+    int delta=1;
+
     for(int i=0;i<zw.size()/(times+1);i++){
         QBitArray ba=zw.at(start+i*delta);
         auto *cp=new ChangeArray(target,start+(times+1)*i*delta,ba);
