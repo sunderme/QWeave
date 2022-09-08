@@ -1,12 +1,12 @@
 [Desktop Entry]
 Categories=Graphics;
-Exec=qdia %F
-GenericName=Diagram Editor
-Comment=LaTeX development environment
-Icon=qdia
-Keywords=Diagram;editor;
+Exec=qweave %F
+GenericName=Weaving Pattern Editor
+Comment=Weave pattern editor and simulator
+Icon=qweave
+Keywords=Weave Pattern;editor;
 MimeType=text/x-tex;
-Name=QDia
+Name=QWeave
 StartupNotify=false
 Terminal=false
 Type=Application

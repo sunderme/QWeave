@@ -1,14 +1,14 @@
-!define APPNAME "QDia"
-!define DESCRIPTION "QDia is a simple diagram/schematic editor."
+!define APPNAME "QWeave"
+!define DESCRIPTION "QWeave is a weaving pattern editor."
 # These three must be integers
-!define VERSIONMAJOR 0
-!define VERSIONMINOR 4
+!define VERSIONMAJOR 1
+!define VERSIONMINOR 2
 !define VERSIONBUILD 0
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
-!define HELPURL "https://github.com/sunderme/qdia" # "Support Information" link
-!define UPDATEURL "https://github.com/sunderme/qdia" # "Product Updates" link
-!define ABOUTURL "https://github.com/sunderme/qdia" # "Publisher" link
+!define HELPURL "https://github.com/sunderme/qweave" # "Support Information" link
+!define UPDATEURL "https://github.com/sunderme/qweave" # "Product Updates" link
+!define ABOUTURL "https://github.com/sunderme/qweave" # "Publisher" link
 
 !include "FileAssociation.nsh"
 
@@ -17,11 +17,11 @@
 !include "MUI2.nsh"
 
 # define the name of the installer
-Outfile "qdia_installer.exe"
+Outfile "qweave_installer.exe"
 
 RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on)
  
-InstallDir "$PROGRAMFILES\qdia"
+InstallDir "$PROGRAMFILES\qweave"
 
 # Get installation folder from registry if available
 InstallDirRegKey HKCU "Software\${APPNAME}" ""
@@ -79,7 +79,7 @@ SetShellVarContext all
 SetOutPath $INSTDIR
  
 # define what to install and place it in the output path
-File qdia.exe
+File qweave.exe
 
 File package-zip\*.dll
 
@@ -109,12 +109,12 @@ WriteRegStr HKCU "Software\${APPNAME}" "" $INSTDIR
 WriteUninstaller $INSTDIR\uninstall.exe
 
 # associate .tex
-${registerExtension} $INSTDIR\qdia.exe ".qdia" "QDia File"
+${registerExtension} $INSTDIR\qweave.exe ".qweave" "qweave File"
 
 
 # Start Menu
 createShortCut "$SMPROGRAMS\${APPNAME}.lnk" \
-"$INSTDIR\qdia.exe" "" ""
+"$INSTDIR\qweave.exe" "" ""
 
 # Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
