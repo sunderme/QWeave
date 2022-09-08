@@ -27,6 +27,7 @@
 #include <QDate>
 #include <QPixmapCache>
 #include <QAction>
+#include <QFile>
 
 //#include <valgrind/callgrind.h>
 
@@ -449,10 +450,10 @@ void Weave::readWIF(const QString &fileName){
         foreach(QString line,doc[key]){
             if(inWeaving){
                 if(line.startsWith("Shafts=")){
-                    newNrShafts=line.midRef(7).toInt();
+                    newNrShafts=line.mid(7).toInt();
                 }
                 if(line.startsWith("Treadles=")){
-                    newNrPositions=line.midRef(9).toInt();
+                    newNrPositions=line.mid(9).toInt();
                 }
             }
             if(inColorTable){
@@ -496,7 +497,7 @@ void Weave::readWIF(const QString &fileName){
             }
             if(inWarp){
                 if(line.startsWith("Threads=")){
-                    newNrCols=line.midRef(8).toInt();
+                    newNrCols=line.mid(8).toInt();
                 }
                 if(line.startsWith("Color=")){
                     QString rest=line.mid(6);
@@ -521,7 +522,7 @@ void Weave::readWIF(const QString &fileName){
             }
             if(inWeft){
                 if(line.startsWith("Threads=")){
-                    newNrLines=line.midRef(8).toInt();
+                    newNrLines=line.mid(8).toInt();
                 }
                 if(line.startsWith("Color=")){
                     QString rest=line.mid(6);

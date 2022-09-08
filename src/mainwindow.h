@@ -52,6 +52,7 @@ private slots:
     void updateRecent();
     void openRecent();
     void selectView(bool fromBottom=false);
+    void about();
 private:
     QString fileName;
 

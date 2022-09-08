@@ -59,8 +59,8 @@ void MainWindow::setupMenu()
     menu->addAction(tr("&Print"),this,SLOT(print()));
     menu->addAction(tr("&Quit"),this,SLOT(close()));
     menu=menuBar()->addMenu(tr("&Edit"));
-    mUndoAction=menu->addAction(tr("&Undo"),wv,SLOT(undo()),QKeySequence(Qt::ControlModifier+Qt::Key_Z));
-    mRedoAction=menu->addAction(tr("&Redo"),wv,SLOT(redo()),QKeySequence(Qt::ControlModifier+Qt::ShiftModifier+Qt::Key_Z));
+    mUndoAction=menu->addAction(tr("&Undo"),wv,SLOT(undo()),QKeySequence(Qt::ControlModifier|Qt::Key_Z));
+    mRedoAction=menu->addAction(tr("&Redo"),wv,SLOT(redo()),QKeySequence(Qt::ControlModifier|Qt::ShiftModifier|Qt::Key_Z));
     menu->addAction(tr("&Move"),wv,SLOT(move()),QKeySequence(Qt::Key_M));
     menu->addAction(tr("&Copy"),wv,SLOT(copy()),QKeySequence(Qt::Key_C));
     menu->addAction(tr("C&lear"),wv,SLOT(clear()),QKeySequence(Qt::Key_Delete));
@@ -81,6 +81,7 @@ void MainWindow::setupMenu()
     menu=menuBar()->addMenu(tr("&Options"));
     menu->addAction(tr("&Config"),this,SLOT(config()));
     menu->addAction(tr("&Reset Colours"),this,SLOT(resetColour()));
+    menu->addAction(tr("&About"),this,&MainWindow::about);
     // recent files
 
     updateRecent();
@@ -200,6 +201,14 @@ void MainWindow::selectView(bool fromBottom)
     wv->setInvertPattern(fromBottom);
     wv->generateWeave();
     wv->update();
+}
+
+void MainWindow::about()
+{
+    QMessageBox::about(this, tr("About QWeave"),
+                           tr("Version %1\n"
+                               "Written by Jan Sundermeyer (C) 2017-2022\n"
+                              "Simple schematic/diagram entry editor.").arg(QWEAVE_VERSION));
 }
 
 void MainWindow::print()

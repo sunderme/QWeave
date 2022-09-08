@@ -9,7 +9,7 @@ git_wc_info(${PROJECT_SOURCE_DIR} VARPREFIX)
 
 message(STATUS "The current git hash is ${VARPREFIX_WC_REVISION_HASH}")
 
-add_definitions(-DQDIA_VERSION=\"${VARPREFIX_WC_LATEST_TAG_LONG}\")
+add_definitions(-DQWEAVE_VERSION=\"${VARPREFIX_WC_LATEST_TAG_LONG}\")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -26,46 +26,46 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS PrintSupport Svg REQUIRED)
 
 set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/resources/win.rc")
 
-set(TS_FILES translation/qdia_en_US.ts translation/qdia_de.ts)
+set(TS_FILES translation/qweave_en_US.ts translation/qweave_de.ts)
 set_source_files_properties(${TS_FILES}
     PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/translation")
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp mainwindow.h
-        weave.cpp weave.h
-        configdialog.cpp configdialog.h
-        genpatterndlg.cpp genpatterndlg.h
-        modifydlg.cpp modifydlg.h
-        duplicatpatterndlg.cpp duplicatpatterndlg.h
+        src/main.cpp
+        src/mainwindow.cpp src/mainwindow.h
+        src/weave.cpp src/weave.h
+        src/configdialog.cpp src/configdialog.h
+        src/genpatterndlg.cpp src/genpatterndlg.h
+        src/modifydlg.cpp src/modifydlg.h
+        src/duplicatpatterndlg.cpp src/duplicatpatterndlg.h
         images.qrc
         ${APP_ICON_RESOURCE_WINDOWS}
         #${TS_FILES}
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(qdia
+    qt_add_executable(qweave
         MACOSX_BUNDLE
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
 # Define target properties for Android with Qt 6 as:
-#    set_property(TARGET qdia APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#    set_property(TARGET qweave APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 
     #qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-    qt6_add_translations(qdia TS_FILES ${TS_FILES})
+    qt6_add_translations(qweave TS_FILES ${TS_FILES})
 
 else()
     if(ANDROID)
-        add_library(qdia SHARED
+        add_library(qweave SHARED
             ${PROJECT_SOURCES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(qdia
+        add_executable(qweave
             MACOSX_BUNDLE
             ${PROJECT_SOURCES}
         )
@@ -74,7 +74,7 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(qdia PRIVATE
+target_link_libraries(qweave PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
@@ -82,7 +82,7 @@ target_link_libraries(qdia PRIVATE
     Qt${QT_VERSION_MAJOR}::Svg
 )
 
-set_target_properties(qdia PROPERTIES
+set_target_properties(qweave PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -91,10 +91,10 @@ set_target_properties(qdia PROPERTIES
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(qdia)
+    qt_finalize_executable(qweave)
 endif()
 
-install(TARGETS qdia DESTINATION bin)
+install(TARGETS qweave DESTINATION bin)
 
 if(UNIX AND NOT APPLE)
 install(FILES resources/qweave.desktop DESTINATION share/applications)
