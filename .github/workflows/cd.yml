@@ -1,0 +1,190 @@
+name: CD
+on:
+  - push
+  - pull_request
+
+jobs:
+  build-win:
+    name: win build (msys2)
+    if: github.event_name == 'push'
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: git mingw-w64-x86_64-cmake make mingw-w64-x86_64-ninja mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-qt6-tools mingw-w64-x86_64-nsis zip unzip
+          
+      - name: Fetch tag annotations
+        run: git fetch --tags --force
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+      - name: Release translation
+        run: |
+          cd build
+          cmake --build . --target qweave_lrelease
+      - name: Build
+        run: |
+          cd build
+          cmake --build .
+      - name: Package
+        id: package
+        run: |
+          cd build
+          VERSION_NAME=`git describe`
+          ../.github/scripts/package_msys.sh
+          echo "::set-output name=VERSION_NAME::${VERSION_NAME}"
+
+      - name: Upload zip to GitHub Artifacts
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v2
+        with:
+          name: qweave-win-qt6-zip
+          path: ./build/package-zip/qweave-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.zip
+          
+      - name: Upload to GitHub Artifacts
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v2
+        with:
+          name: qweave-win-qt6-exe
+          path: ./build/qweave-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.exe
+        
+      - name: Release exe
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+          files: |
+            ./build/qweave-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.exe
+            ./build/package-zip/qweave-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+
+###################################
+
+  build-linux-release:
+    name: linux appimage
+    if: github.event_name == 'push'
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Fetch tag annotations
+      run: git fetch --tags --force
+
+    - name: Updates
+      run: sudo apt-get update
+
+    - name: Dependencies
+      run: sudo apt-get install qtbase5-dev qt5-default cmake libqt5svg5-dev qttools5-dev
+
+    - name: Configure
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_INSTALL_PREFIX=appdir/usr ..
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --target install
+      
+    - name: Package
+      id: package
+      run: |
+        cd build
+        VERSION_NAME=`git describe`
+        . ../.github/scripts/package_linux.sh
+        echo "::set-output name=VERSION_NAME::${VERSION_NAME}"
+        
+    - name: Upload to Github Artifacts
+      if: github.event_name == 'push'
+      uses: actions/upload-artifact@v2
+      with:
+        name: qweave-linux
+        path: qweave-linux-${{ steps.package.outputs.VERSION_NAME }}-x86_64.AppImage
+        
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+        files: qweave-linux-${{ steps.package.outputs.VERSION_NAME }}-x86_64.AppImage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+   
+
+   
+############################
+      
+  macosx:
+    name: Mac OS X
+    runs-on: macos-latest
+    if: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Fetch tag annotations
+      run: git fetch --tags --force
+
+    - name: Install Dependencies
+      run: |
+        brew install qt6
+
+    - name: Configure
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Release translation
+      run: cmake --build build --target qweave_lrelease
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Package
+      id: package
+      run: |
+        cd build
+        /usr/local/opt/qt6/bin/macdeployqt qweave.app -dmg
+        VERSION_NAME=`git describe`
+        cp qweave.dmg qweave-osx-${VERSION_NAME}.dmg
+        echo "::set-output name=VERSION_NAME::${VERSION_NAME}"
+        echo "::set-output name=TXS_VERSION::${TXS_VERSION}"
+        echo "::set-output name=GIT_VERSION::${GIT_VERSION}"
+        
+    - name: Upload to Github artifacts
+      if: github.event_name == 'push'
+      uses: actions/upload-artifact@v2
+      with:
+        name: qweave-osx
+        path: build/qweave-osx-${{ steps.package.outputs.VERSION_NAME }}.dmg
+        
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+        files: build/qweave-osx-${{ steps.package.outputs.VERSION_NAME }}.dmg
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+        
+ 
