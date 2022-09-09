@@ -40,7 +40,7 @@ set(PROJECT_SOURCES
         src/duplicatpatterndlg.cpp src/duplicatpatterndlg.h
         images.qrc
         ${APP_ICON_RESOURCE_WINDOWS}
-        #${TS_FILES}
+        ${TS_FILES}
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
