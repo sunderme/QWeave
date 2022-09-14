@@ -250,12 +250,12 @@ Webmuster Generator</translation>
         <location filename="../src/weave.cpp" line="827"/>
         <source>heddle %1 %2 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Schäfte %1 %2</translation>
     </message>
     <message>
         <location filename="../src/weave.cpp" line="830"/>
         <source>analyze heddles</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysiere ebschäfte</translation>
     </message>
 </context>
 <context>
@@ -273,12 +273,12 @@ Webmuster Generator</translation>
     <message>
         <location filename="../src/configdialog.cpp" line="36"/>
         <source>Shafts</source>
-        <translation type="unfinished"></translation>
+        <translation>Webschaft</translation>
     </message>
     <message>
         <location filename="../src/configdialog.cpp" line="42"/>
         <source>Positions</source>
-        <translation type="unfinished"></translation>
+        <translation>Positionen</translation>
     </message>
     <message>
         <location filename="../src/configdialog.cpp" line="48"/>
@@ -293,7 +293,7 @@ Webmuster Generator</translation>
     <message>
         <location filename="../src/configdialog.cpp" line="56"/>
         <source>exclusive shafts</source>
-        <translation type="unfinished"></translation>
+        <translation>Exklusive Webschäfte</translation>
     </message>
     <message>
         <location filename="../src/configdialog.cpp" line="62"/>
