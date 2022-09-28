@@ -38,14 +38,6 @@ jobs:
           cd build
           cmake --build .
 
-      - name: Workarounds
-        run: |
-          python2 ./.github/scripts/fixRpath.py /usr/local/opt/qt/lib
-          mkdir -p texstudio.app/Contents/PlugIns/imageformats
-          cp /usr/local/opt/qt/share/qt/plugins/imageformats/libqsvg.dylib texstudio.app/Contents/PlugIns/imageformats
-          mkdir -p texstudio.app/Contents/Frameworks
-          cp /usr/local/lib/libbrotlicommon.1.dylib texstudio.app/Contents/Frameworks
-
       - name: Package
         id: package
         run: |
@@ -168,6 +160,14 @@ jobs:
 
     - name: Build
       run: cmake --build build
+
+    - name: Workarounds
+      run: |
+        python2 ./.github/scripts/fixRpath.py /usr/local/opt/qt/lib
+        mkdir -p texstudio.app/Contents/PlugIns/imageformats
+        cp /usr/local/opt/qt/share/qt/plugins/imageformats/libqsvg.dylib texstudio.app/Contents/PlugIns/imageformats
+        mkdir -p texstudio.app/Contents/Frameworks
+        cp /usr/local/lib/libbrotlicommon.1.dylib texstudio.app/Contents/Frameworks
 
     - name: Package
       id: package
