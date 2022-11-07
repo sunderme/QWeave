@@ -147,13 +147,21 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        brew install qt6
+        wget https://github.com/sunderme/homebrew-qt6/releases/download/6.4.0-1/QtBase-6.4.0-Darwin.tar.xz
+        sudo tar xvf ./QtBase-6.4.0-Darwin.tar.xz -C /usr/local
+        rm QtBase-6.4.0-Darwin.tar.xz
+        wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/6.4.0-1/QtSvg-6.4.0-Darwin.tar.xz
+        sudo tar xvf ./QtSvg-6.4.0-Darwin.tar.xz -C /usr/local/QtBase-6.4.0-Darwin --strip-components=1
+        rm QtSvg-6.4.0-Darwin.tar.xz
+        wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/6.4.0-1/QtTools-6.4.0-Darwin.tar.xz
+        sudo tar xvf ./QtTools-6.4.0-Darwin.tar.xz -C /usr/local/QtBase-6.4.0-Darwin --strip-components=1
+        rm QtTools-6.4.0-Darwin.tar.xz
 
     - name: Configure
       run: |
         mkdir build
         cd build
-        cmake ..
+        /usr/local/QtBase-6.4.0-Darwin/bin/qt-cmake ..
 
     - name: Release translation
       run: cmake --build build --target qweave_lrelease
@@ -163,9 +171,6 @@ jobs:
 
     - name: Workarounds
       run: |
-        python2 ./.github/scripts/fixRpath.py /usr/local/opt/qt/lib
-        mkdir -p texstudio.app/Contents/PlugIns/imageformats
-        cp /usr/local/opt/qt/share/qt/plugins/imageformats/libqsvg.dylib texstudio.app/Contents/PlugIns/imageformats
         mkdir -p texstudio.app/Contents/Frameworks
         cp /usr/local/lib/libbrotlicommon.1.dylib texstudio.app/Contents/Frameworks
 
@@ -173,12 +178,10 @@ jobs:
       id: package
       run: |
         cd build
-        /usr/local/opt/qt6/bin/macdeployqt qweave.app -dmg
+        /usr/local/QtBase-6.4.0-Darwin/bin/macdeployqt qweave.app -dmg
         VERSION_NAME=`git describe`
         cp qweave.dmg qweave-osx-${VERSION_NAME}.dmg
-        echo "::set-output name=VERSION_NAME::${VERSION_NAME}"
-        echo "::set-output name=TXS_VERSION::${TXS_VERSION}"
-        echo "::set-output name=GIT_VERSION::${GIT_VERSION}"
+        echo "VERSION_NAME=${VERSION_NAME}">> $GITHUB_OUTPUT
         
     - name: Upload to Github artifacts
       if: github.event_name == 'push'
